@@ -1,39 +1,87 @@
-import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HouseholdTableComponent } from '../../components/household-table/household-table.component';
 import { HouseholdFormComponent } from '../../components/household-form/household-form.component';
-import type { HouseholdItem } from '../../models';
+import { FurnitureFormComponent } from '../../components/furniture-form/furniture-form.component';
+import type { HouseholdItem, ItemType } from '../../models';
+import { generateId } from '../../models';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Subject } from 'rxjs';
+
+const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-household-dashboard',
   standalone: true,
-  imports: [CommonModule, HouseholdTableComponent, HouseholdFormComponent],
+  imports: [CommonModule, HouseholdTableComponent, HouseholdFormComponent, FurnitureFormComponent],
   templateUrl: './household-dashboard.component.html',
   styleUrls: ['./household-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HouseholdDashboardComponent {
-  private nextId = 1;
-
+export class HouseholdDashboardComponent implements OnDestroy {
   private itemsSignal = signal<HouseholdItem[]>([]);
   readonly items = this.itemsSignal;
 
-  private searchSignal = signal('');
-  readonly search = this.searchSignal;
+  private searchSubject = new Subject<string>();
+  readonly search = toSignal(
+    this.searchSubject.pipe(
+      debounceTime(SEARCH_DEBOUNCE_MS),
+      distinctUntilChanged()
+    ),
+    { initialValue: '' }
+  );
+
+  private errorMessageSignal = signal<string | null>(null);
+  readonly errorMessage = this.errorMessageSignal;
 
   readonly filteredItems = computed(() => {
-    const q = this.searchSignal().trim().toLowerCase();
+    const q = this.search().trim().toLowerCase();
     if (!q) return this.itemsSignal();
     return this.itemsSignal().filter((i) => i.name.toLowerCase().includes(q));
   });
 
   addItem(data: { name: string; quantity: number }) {
-    const item: HouseholdItem = { id: this.nextId++, name: data.name, quantity: data.quantity };
+    const item: HouseholdItem = { 
+      id: generateId(), 
+      name: data.name, 
+      quantity: data.quantity,
+      type: 'general' as ItemType
+    };
     this.itemsSignal.update((curr) => [...curr, item]);
+    this.clearError();
+  }
+
+  addFurniture(data: { furniture: string; count: number }) {
+    const item: HouseholdItem = { 
+      id: generateId(), 
+      name: data.furniture, 
+      quantity: data.count,
+      type: 'furniture' as ItemType
+    };
+    this.itemsSignal.update((curr) => [...curr, item]);
+    this.clearError();
   }
 
   setSearch(event: Event) {
-    const value = (event.target as HTMLInputElement).value;
-    this.searchSignal.set(value);
+    const target = event.target as HTMLInputElement;
+    if (!target) {
+      this.searchSubject.next('');
+      return;
+    }
+    this.searchSubject.next(target.value);
+  }
+
+  showError(message: string) {
+    this.errorMessageSignal.set(message);
+    setTimeout(() => this.clearError(), 5000);
+  }
+
+  clearError() {
+    this.errorMessageSignal.set(null);
+  }
+
+  ngOnDestroy() {
+    this.searchSubject.complete();
   }
 }

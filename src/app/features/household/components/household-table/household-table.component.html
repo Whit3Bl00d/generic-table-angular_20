@@ -1,18 +1,23 @@
 <table class="items-table">
   <thead>
-    <tr><th>#</th><th>Name</th><th>Quantity</th></tr>
+    <tr><th>#</th><th>Name</th><th>Type</th><th>Quantity</th></tr>
   </thead>
   <tbody>
     @for (item of items(); let i = $index; track item.id) {
       <tr>
         <td>{{ i + 1 }}</td>
         <td>{{ item.name }}</td>
+        <td>
+          <span class="item-type" [class.furniture]="item.type === 'furniture'" [class.general]="item.type === 'general'">
+            {{ item.type === 'furniture' ? '🪑' : '📦' }} {{ item.type }}
+          </span>
+        </td>
         <td>{{ item.quantity }}</td>
       </tr>
     }
     @if (items().length === 0) {
       <tr>
-        <td colspan="3">No items</td>
+        <td colspan="4" class="empty-state">No inventory items yet</td>
       </tr>
     }
   </tbody>
