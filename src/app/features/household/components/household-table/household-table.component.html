@@ -1,0 +1,19 @@
+<table class="items-table">
+  <thead>
+    <tr><th>#</th><th>Name</th><th>Quantity</th></tr>
+  </thead>
+  <tbody>
+    @for (item of items(); let i = $index; track item.id) {
+      <tr>
+        <td>{{ i + 1 }}</td>
+        <td>{{ item.name }}</td>
+        <td>{{ item.quantity }}</td>
+      </tr>
+    }
+    @if (items().length === 0) {
+      <tr>
+        <td colspan="3">No items</td>
+      </tr>
+    }
+  </tbody>
+</table>

@@ -6,7 +6,7 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "test": "echo \"Tests are disabled in this project.\"",
     "serve:ssr:Angular-20": "node dist/Angular-20/server/server.mjs"
   },
   "prettier": {

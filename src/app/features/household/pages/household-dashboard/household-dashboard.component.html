@@ -1,0 +1,15 @@
+<section class="feature">
+  <h1>Household Items</h1>
+  <p>A small learning demo to add and search household items.</p>
+
+  <div class="controls">
+    <label>
+      Search:
+      <input type="text" [value]="search()" (input)="setSearch($event)" />
+    </label>
+  </div>
+
+  <app-household-form (addItem)="addItem($event)"></app-household-form>
+
+  <app-household-table [items]="filteredItems()"></app-household-table>
+</section>
