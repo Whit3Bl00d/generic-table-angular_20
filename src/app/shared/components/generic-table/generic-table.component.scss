@@ -238,21 +238,20 @@
   text-align: center;
 }
 
-
 /* Responsive */
 @media (max-width: 768px) {
   .filters-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .sort__controls {
     flex-direction: column;
   }
-  
+
   .data-table {
     font-size: 12px;
   }
-  
+
   .data-table th,
   .data-table td {
     padding: 8px 4px;

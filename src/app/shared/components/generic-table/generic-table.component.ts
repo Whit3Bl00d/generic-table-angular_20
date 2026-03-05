@@ -28,6 +28,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   emptyTemplate = input<TemplateRef<any> | undefined>(undefined);
   showFilters = input<boolean>(true);
   showSort = input<boolean>(true);
+  showSortShowcase = input<boolean>(false);
   showRowNumbers = input<boolean>(false);
   rowNumberLabel = input<string>('#');
 

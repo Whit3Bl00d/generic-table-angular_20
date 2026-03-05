@@ -1,19 +1,20 @@
 <div class="generic-table">
-  @if (showFilters() !== false && filterableColumns().length > 0) {
+  @if (showFilters() === true && filterableColumns().length > 0) {
     <section class="filters">
       <header>
         <title class="filters__title">Filters</title>
-        <button class="filters__clear" (click)="clearFilters()" title="Clear all filters">
-          ✕
-        </button>
+
+        <button class="filters__clear" (click)="clearFilters()" title="Clear all filters">✕</button>
       </header>
+
       <div class="filters__grid">
         @for (column of filterableColumns(); track column.key) {
           <div class="filter">
             <label [attr.for]="'filter-' + column.key.toString()">{{ column.label }}:</label>
-            <input 
+
+            <input
               [attr.id]="'filter-' + column.key.toString()"
-              type="text" 
+              type="text"
               [placeholder]="'Filter by ' + column.label"
               (input)="onFilterChange(column.key.toString(), $any($event).target.value)"
             />
@@ -23,23 +24,24 @@
     </section>
   }
 
-  @if (showSort() !== false) {
+  @if (showSortShowcase() === true) {
     <section class="sort">
       <header>
         <title class="sort__title">Sort</title>
-        <button class="sort__clear" (click)="clearSort()" title="Clear sort">
-          ✕
-        </button>
+
+        <button class="sort__clear" (click)="clearSort()" title="Clear sort">✕</button>
       </header>
+
       <div class="sort__controls">
         @for (column of sortableColumns(); track column.key) {
-          <button 
+          <button
             class="sort__btn"
             [class.active]="isSortedBy(column.key.toString())"
             (click)="onSortChange(column.key.toString())"
             [title]="'Sort by ' + column.label"
           >
             {{ column.label }}
+
             <span class="sort__icon">{{ getSortIcon(column.key.toString()) }}</span>
           </button>
         }
@@ -54,8 +56,9 @@
           @for (column of displayColumns(); track column.key) {
             <th>
               {{ column.label }}
-              @if (showSort() !== false && column.sortable && column.key !== 'rowNumber') {
-                <button 
+
+              @if (showSort() === true && column.sortable && column.key !== 'rowNumber') {
+                <button
                   class="sort__header"
                   [class.active]="isSortedBy(column.key.toString())"
                   (click)="onSortChange(column.key.toString())"
@@ -68,6 +71,7 @@
           }
         </tr>
       </thead>
+
       <tbody>
         @for (item of displayData(); track $index) {
           <tr (click)="onRowClick(item)" class="row">
@@ -78,6 +82,7 @@
             }
           </tr>
         }
+        
         @if (filteredAndSortedData().length === 0) {
           <tr>
             <td [attr.colspan]="displayColumns().length" class="empty">
@@ -91,9 +96,7 @@
     </table>
   </section>
 
-  @if (showFilters() !== false || showSort() !== false) {
-    <footer class="results">
-      {{ displayData().length }} of {{ data().length }} items
-    </footer>
+  @if (showFilters() === true) {
+    <footer class="results">{{ displayData().length }} of {{ data().length }} items</footer>
   }
 </div>
