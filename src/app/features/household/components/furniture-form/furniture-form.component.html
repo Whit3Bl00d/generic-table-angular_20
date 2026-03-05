@@ -1,7 +1,7 @@
-<form (submit)="onSubmit($event)" class="furniture-form">
+<form [formGroup]="form" (ngSubmit)="onSubmit()" class="furniture-form">
   <div class="form-group">
     <label for="furniture">Furniture Type:</label>
-    <select name="furniture" id="furniture" required>
+    <select formControlName="furniture" id="furniture" required>
       <option value="">Choose furniture...</option>
       @for (type of furnitureTypes; track type) {
         <option [value]="type">{{ type }}</option>
@@ -12,15 +12,11 @@
   <div class="form-group">
     <label for="count">Count:</label>
     <input 
-      name="count" 
+      formControlName="count"
       id="count" 
       type="number" 
-      [min]="1" 
-      [max]="99" 
-      value="1" 
-      required 
     />
   </div>
   
-  <button type="submit" class="add-furniture-btn">Add Furniture</button>
+  <button type="submit" [disabled]="!form.valid">Add Furniture</button>
 </form>

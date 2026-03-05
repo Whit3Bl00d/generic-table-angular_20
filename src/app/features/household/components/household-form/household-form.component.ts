@@ -1,5 +1,7 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
+import { Subscription } from 'rxjs';
 
 const DEFAULT_QUANTITY = 1;
 const MIN_QUANTITY = 1;
@@ -7,47 +9,41 @@ const MIN_QUANTITY = 1;
 @Component({
   selector: 'app-household-form',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './household-form.component.html',
   styleUrls: ['./household-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HouseholdFormComponent {
+export class HouseholdFormComponent implements OnDestroy {
   @Output() addItem = new EventEmitter<{ name: string; quantity: number }>();
   @Output() error = new EventEmitter<string>();
 
-  onSubmit(e: Event) {
-    try {
-      e.preventDefault();
-      const form = e.target as HTMLFormElement;
-      
-      const nameElement = form.elements.namedItem('name') as HTMLInputElement;
-      const quantityElement = form.elements.namedItem('quantity') as HTMLInputElement;
-      
-      if (!nameElement || !quantityElement) {
-        this.error.emit('Form elements not found');
-        return;
-      }
+  form: FormGroup;
+  private valueChangesSubscription: Subscription | undefined;
 
-      const name = nameElement.value.trim();
-      const quantity = Number(quantityElement.value) || DEFAULT_QUANTITY;
-      
-      if (!name) {
-        this.error.emit('Item name is required');
-        return;
-      }
-      
-      if (quantity < MIN_QUANTITY) {
-        this.error.emit('Quantity must be at least 1');
-        return;
-      }
-      
-      this.addItem.emit({ name, quantity });
-      form.reset();
-      quantityElement.value = DEFAULT_QUANTITY.toString();
-    } catch (error) {
-      this.error.emit('An error occurred while adding the item');
-      console.error('Form submission error:', error);
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(1), Validators.maxLength(100)]],
+      quantity: [DEFAULT_QUANTITY, [Validators.required, Validators.min(MIN_QUANTITY)]]
+    });
+
+    // Watch for value changes
+    this.valueChangesSubscription = this.form.valueChanges.subscribe(() => {
+      // Clear any existing errors when form values change
+      this.error.emit('');
+    });
+  }
+
+  onSubmit() {
+    if (this.form.valid) {
+      const { name, quantity } = this.form.value;
+      this.addItem.emit({ name: name.trim(), quantity });
+      this.form.reset();
+      this.form.patchValue({ quantity: DEFAULT_QUANTITY });
     }
+  }
+
+  ngOnDestroy() {
+    this.valueChangesSubscription?.unsubscribe();
   }
 }

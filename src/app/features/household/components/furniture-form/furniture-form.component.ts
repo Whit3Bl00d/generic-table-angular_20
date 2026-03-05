@@ -1,6 +1,8 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Output, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { FURNITURE_TYPES, type FurnitureType } from '../../models';
+import { Subscription } from 'rxjs';
 
 const DEFAULT_COUNT = 1;
 const MIN_COUNT = 1;
@@ -9,49 +11,42 @@ const MAX_COUNT = 99;
 @Component({
   selector: 'app-furniture-form',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './furniture-form.component.html',
   styleUrls: ['./furniture-form.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class FurnitureFormComponent {
+export class FurnitureFormComponent implements OnDestroy {
   @Output() addFurniture = new EventEmitter<{ furniture: FurnitureType; count: number }>();
   @Output() error = new EventEmitter<string>();
 
   readonly furnitureTypes = FURNITURE_TYPES;
+  form: FormGroup;
+  private valueChangesSubscription: Subscription | undefined;
 
-  onSubmit(e: Event) {
-    try {
-      e.preventDefault();
-      const form = e.target as HTMLFormElement;
-      
-      const furnitureElement = form.elements.namedItem('furniture') as HTMLSelectElement;
-      const countElement = form.elements.namedItem('count') as HTMLInputElement;
-      
-      if (!furnitureElement || !countElement) {
-        this.error.emit('Form elements not found');
-        return;
-      }
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      furniture: ['', Validators.required],
+      count: [DEFAULT_COUNT, [Validators.required, Validators.min(MIN_COUNT), Validators.max(MAX_COUNT)]]
+    });
 
-      const furniture = furnitureElement.value as FurnitureType;
-      const count = Number(countElement.value) || DEFAULT_COUNT;
-      
-      if (!furniture) {
-        this.error.emit('Please select a furniture type');
-        return;
-      }
-      
-      if (count < MIN_COUNT || count > MAX_COUNT) {
-        this.error.emit(`Count must be between ${MIN_COUNT} and ${MAX_COUNT}`);
-        return;
-      }
-      
+    // Watch for value changes
+    this.valueChangesSubscription = this.form.valueChanges.subscribe(() => {
+      // Clear any existing errors when form values change
+      this.error.emit('');
+    });
+  }
+
+  onSubmit() {
+    if (this.form.valid) {
+      const { furniture, count } = this.form.value;
       this.addFurniture.emit({ furniture, count });
-      form.reset();
-      countElement.value = DEFAULT_COUNT.toString();
-    } catch (error) {
-      this.error.emit('An error occurred while adding the furniture');
-      console.error('Furniture form submission error:', error);
+      this.form.reset();
+      this.form.patchValue({ count: DEFAULT_COUNT });
     }
+  }
+
+  ngOnDestroy() {
+    this.valueChangesSubscription?.unsubscribe();
   }
 }
