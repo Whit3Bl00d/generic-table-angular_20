@@ -1,0 +1,116 @@
+/* Checkbox Styling Mixins */
+
+// Mixin for checkbox ripple styling
+@mixin material-checkbox-ripple(
+  $default-ripple-color: rgb(0, 47, 255),
+  $checked-ripple-color: rgb(16, 253, 115),
+  $static-ripple-opacity: 0.3
+) {
+  // Static ripple styling
+  ::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
+    background-color: rgb(21, 101, 192) !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s ease;
+    
+    // Show static ripple on hover
+    &:hover {
+      opacity: $static-ripple-opacity !important;
+    }
+  }
+
+  // Dynamic ripple for default state
+  ::ng-deep .mat-ripple-element {
+    background-color: $default-ripple-color !important;
+  }
+
+  // Dynamic ripple for checked state
+  ::ng-deep .mat-mdc-checkbox-checked .mat-ripple-element {
+    background-color: $checked-ripple-color !important;
+  }
+}
+
+// Mixin for checkbox styling
+@mixin material-checkbox-styling(
+  $bg-color: transparent,
+  $border-color: #2c5282,
+  $border-radius: 4px,
+  $border-width: 2px,
+  $checked-bg: #1565c0,
+  $checked-border: #1565c0,
+  $hover-bg: #2a4d69,
+  $hover-border: #1565c0,
+  $unselected-hover-bg: #e0e0e0,
+  $unselected-hover-border: #1565c0
+) {
+
+  // Base checkbox styling
+  ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
+    background-color: $bg-color;
+    border-color: $border-color;
+    border-radius: $border-radius;
+    border-width: $border-width;
+  }
+
+  // Checked and indeterminate states
+  ::ng-deep .mat-mdc-checkbox.mdc-checkbox--selected .mdc-form-field .mdc-checkbox .mdc-checkbox__background,
+  ::ng-deep .mat-mdc-checkbox.mdc-checkbox--indeterminate .mdc-form-field .mdc-checkbox .mdc-checkbox__background {
+    background-color: $checked-bg;
+    border-color: $checked-border;
+  }
+
+  // Override for checked and indeterminate states
+  ::ng-deep .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
+  ::ng-deep .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
+    border-color: $checked-border;
+    background-color: $checked-bg;
+  }
+
+  // Hover styles for checked/indeterminate
+  ::ng-deep .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled) .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
+  ::ng-deep .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled) .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
+    border-color: $hover-border;
+    background-color: $hover-bg;
+  }
+
+  // Hover for unselected checkboxes
+  ::ng-deep .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled):not(.mdc-checkbox--selected):not(.mdc-checkbox--indeterminate) .mdc-checkbox__background {
+    background-color: $unselected-hover-bg;
+    border-color: $unselected-hover-border;
+  }
+}
+
+// Combined mixin for complete checkbox styling
+@mixin material-checkbox(
+  $bg-color: transparent,
+  $border-color: #2c5282,
+  $border-radius: 4px,
+  $border-width: 2px,
+  $checked-bg: #1565c0,
+  $checked-border: #1565c0,
+  $hover-bg: #2a4d69,
+  $hover-border: #1565c0,
+  $unselected-hover-bg: #e0e0e0,
+  $unselected-hover-border: #1565c0,
+  $default-ripple-color: rgb(0, 47, 255),
+  $checked-ripple-color: rgb(16, 253, 115),
+  $static-ripple-opacity: 0.3
+) {
+  @include material-checkbox-styling(
+    $bg-color,
+    $border-color,
+    $border-radius,
+    $border-width,
+    $checked-bg,
+    $checked-border,
+    $hover-bg,
+    $hover-border,
+    $unselected-hover-bg,
+    $unselected-hover-border
+  );
+
+  @include material-checkbox-ripple(
+    $default-ripple-color,
+    $checked-ripple-color,
+    $static-ripple-opacity
+  );
+}

@@ -1,18 +1,18 @@
 import { TemplateRef } from '@angular/core';
 
-export interface TableColumn<T extends Record<string | number, any>> {
+export interface TableColumn<T> {
   key: keyof T;
   label: string;
   sortable?: boolean;
   filterable?: boolean;
 }
 
-export interface TableFilter<T extends Record<string | number, any>> {
+export interface TableFilter<T> {
   key: keyof T;
   value: string;
 }
 
-export interface TableSort<T extends Record<string | number, any>> {
+export interface TableSort<T> {
   key: keyof T;
   direction: 'asc' | 'desc';
 }

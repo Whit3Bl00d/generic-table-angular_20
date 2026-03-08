@@ -42,7 +42,9 @@
           >
             {{ column.label }}
 
-            <span class="sort__icon">{{ getSortIcon(column.key.toString()) }}</span>
+            <span class="sort__icon">
+              <mat-icon>{{ getSortIcon(column.key.toString()) }}</mat-icon>
+            </span>
           </button>
         }
       </div>
@@ -51,41 +53,60 @@
 
   <section class="table__container">
     <table class="table">
-      <thead>
-        <tr>
+      <thead class="table__header">
+        <tr class="table__header__row">
           @for (column of displayColumns(); track column.key) {
-            <th>
-              {{ column.label }}
+            <th class="table__header__cell">
+              @if (column.key === 'checkbox') {
+                <mat-checkbox 
+                  [checked]="selectAllState().checked"
+                  [indeterminate]="selectAllState().indeterminate"
+                  [disabled]="selectAllState().disabled"
+                  (change)="onSelectAll($event.checked)"
+                  [attr.aria-label]="'Select all items'"
+                />
+              } @else {
+                {{ column.label }}
 
-              @if (showSort() === true && column.sortable && column.key !== 'rowNumber') {
-                <button
-                  class="sort__header"
-                  [class.active]="isSortedBy(column.key.toString())"
-                  (click)="onSortChange(column.key.toString())"
-                  [title]="'Sort by ' + column.label"
-                >
-                  {{ getSortIcon(column.key.toString()) }}
-                </button>
+                @if (showSort() === true && column.sortable && column.key !== 'rowNumber') {
+                  <button
+                    class="sort__header"
+                    [class.active]="isSortedBy(column.key.toString())"
+                    (click)="onSortChange(column.key.toString())"
+                    [title]="'Sort by ' + column.label"
+                  >
+                    <mat-icon>{{ getSortIcon(column.key.toString()) }}</mat-icon>
+                  </button>
+                }
               }
             </th>
           }
         </tr>
       </thead>
 
-      <tbody>
+      <tbody class="table__body">
         @for (item of displayData(); track $index) {
-          <tr (click)="onRowClick(item)" class="row">
+          <tr (click)="onRowClick(item)" class="table__row">
             @for (column of displayColumns(); track column.key) {
-              <td>
-                {{ getDisplayValue(item, column.key) }}
+              <td class="table__cell">
+                @if (column.key === 'checkbox') {
+                <mat-checkbox 
+                  [checked]="isItemSelected(item)"
+                  (change)="onCheckboxChange(item, $event.checked)"
+                  [disabled]="!selectionModel()"
+                  [attr.aria-label]="'Select item'"
+                />
+              } @else {
+                  {{ getDisplayValue(item, column.key) }}
+                }
               </td>
             }
           </tr>
         }
         
         @if (filteredAndSortedData().length === 0) {
-          <tr>
-            <td [attr.colspan]="displayColumns().length" class="empty">
+          <tr class="table__row--empty">
+            <td [attr.colspan]="displayColumns().length" class="table__cell--empty">
               @if (emptyTemplate()) {
                 <ng-container [ngTemplateOutlet]="emptyTemplate()"></ng-container>
               }

@@ -10,13 +10,17 @@ import {
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
+import { SelectionModel } from '@angular/cdk/collections';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 
 import type { TableColumn, TableFilter, TableSort } from './generic-table.types';
 
 @Component({
   selector: 'app-generic-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatCheckboxModule, MatIconModule, MatButtonModule],
   templateUrl: './generic-table.component.html',
   styleUrls: ['./generic-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -31,13 +35,13 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   showSortShowcase = input<boolean>(false);
   showRowNumbers = input<boolean>(false);
   rowNumberLabel = input<string>('#');
+  selectionModel = input<SelectionModel<T> | undefined>(undefined);
 
   // Outputs
   @Output() rowClick = new EventEmitter<T>();
 
   // Private signals
   private filterSignal = signal<TableFilter<T>[]>([]);
-
   private sortSignal = signal<TableSort<T> | null>(null);
 
   // Computed properties
@@ -99,18 +103,32 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
 
   readonly displayColumns = computed(() => {
     const columns = this.columns();
+    const result: TableColumn<any>[] = [...columns];
 
-    if (!this.showRowNumbers()) {
-      return columns;
+    // Add row number column first if enabled
+    if (this.showRowNumbers()) {
+      const rowNumberColumn: TableColumn<any> = {
+        key: 'rowNumber',
+        label: this.rowNumberLabel(),
+        sortable: false,
+        filterable: false,
+      };
+      result.unshift(rowNumberColumn);
     }
 
-    const rowNumberColumn: TableColumn<T & { rowNumber: string }> = {
-      key: 'rowNumber',
-      label: this.rowNumberLabel(),
-      sortable: false,
-      filterable: false,
-    };
-    return [rowNumberColumn, ...columns];
+    // Add checkbox column first if selection model is provided
+    // This ensures checkboxes appear as the leftmost column
+    if (this.selectionModel()) {
+      const checkboxColumn: TableColumn<any> = {
+        key: 'checkbox',
+        label: '',
+        sortable: false,
+        filterable: false,
+      };
+      result.unshift(checkboxColumn);
+    }
+
+    return result as TableColumn<T>[];
   });
 
   readonly filterableColumns = computed(() => {
@@ -125,10 +143,38 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     );
   });
 
-  // Event handlers
-  onFilterChange(key: string, value: string) {
-    const currentFilters = this.filterSignal();
+  // Signal to trigger select all state updates
+  private selectionUpdateTrigger = signal(0);
 
+  readonly selectAllState = computed(() => {
+    // Access the trigger to create dependency
+    this.selectionUpdateTrigger();
+
+    const model = this.selectionModel();
+    const allData = this.data();
+
+    if (!model || allData.length === 0) {
+      return { checked: false, indeterminate: false, disabled: true };
+    }
+
+    const selectedCount = model.selected.length;
+    const totalCount = allData.length;
+
+    if (selectedCount === 0) {
+      return { checked: false, indeterminate: false, disabled: false };
+    }
+
+    if (selectedCount === totalCount) {
+      return { checked: true, indeterminate: false, disabled: false };
+    }
+
+    // Partial selection
+    return { checked: false, indeterminate: true, disabled: false };
+  });
+
+  // Event handlers
+  onFilterChange(key: string, value: string): void {
+    const currentFilters = this.filterSignal();
     const existingIndex = currentFilters.findIndex((f) => f.key === key);
 
     if (value.trim() === '') {
@@ -154,9 +200,8 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     }
   }
 
-  onSortChange(key: string) {
+  onSortChange(key: string): void {
     const currentSort = this.sortSignal();
-
     const keyAsKeyOf = key as keyof T;
 
     if (currentSort?.key === keyAsKeyOf) {
@@ -170,28 +215,69 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     }
   }
 
-  onRowClick(item: T) {
+  onRowClick(item: T): void {
     this.rowClick.emit(item);
+  }
+
+  onCheckboxChange(item: T, checked: boolean): void {
+    const model = this.selectionModel();
+    if (!model) return;
+
+    // Toggle selection state based on checkbox
+    if (checked) {
+      model.select(item);
+    } else {
+      model.deselect(item);
+    }
+
+    // Trigger select all state update with increment
+    this.selectionUpdateTrigger.update((n) => n + 1);
+    console.log(model);
+  }
+
+  onSelectAll(checked: boolean): void {
+    const model = this.selectionModel();
+    if (!model) return;
+
+    const displayData = this.displayData();
+    if (checked) {
+      // Select all items in the dataset
+      model.select(...displayData);
+      console.log(model);
+    } else {
+      // Clear all selections
+      model.clear();
+    }
+
+    // Trigger select all state update with increment
+    this.selectionUpdateTrigger.update((n) => n + 1);
+  }
+
+  isItemSelected(item: T): boolean {
+    const model = this.selectionModel();
+    // Return false if no model, otherwise check selection
+    return model ? model.isSelected(item) : false;
   }
 
   // Utility methods
   getSortIcon(key: string): string {
     const currentSort = this.sortSignal();
-
     const keyAsKeyOf = key as keyof T;
+    if (currentSort?.key !== keyAsKeyOf) return 'unfold_more';
 
-    if (currentSort?.key !== keyAsKeyOf) return '↕️';
-
-    return currentSort.direction === 'asc' ? '↑' : '↓';
+    return currentSort.direction === 'asc' ? 'arrow_upward' : 'arrow_downward';
   }
 
   isSortedBy(key: string): boolean {
     const keyAsKeyOf = key as keyof T;
-
     return this.sortSignal()?.key === keyAsKeyOf;
   }
 
-  getDisplayValue(item: any, key: keyof T | 'rowNumber'): any {
+  getDisplayValue(item: any, key: keyof T | 'rowNumber' | 'checkbox'): any {
+    if (key === 'checkbox') {
+      return this.isItemSelected(item);
+    }
+
     if (key === 'rowNumber') {
       return item.rowNumber;
     }
@@ -199,12 +285,11 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     return item[key as keyof T];
   }
 
-  // Public API methods
-  clearFilters() {
+  clearFilters(): void {
     this.filterSignal.set([]);
   }
 
-  clearSort() {
+  clearSort(): void {
     this.sortSignal.set(null);
   }
 }

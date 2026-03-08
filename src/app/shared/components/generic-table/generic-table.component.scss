@@ -1,77 +1,105 @@
-/* Generic Table - Professional Styling System */
+/* Generic Table - Professional Styling System with Angular Material */
+
+/* Import Angular Material theme */
+@use '@angular/material' as mat;
+@use '../../../../styles/_mixins.scss' as mixins;
 
 /* CSS Custom Properties for theming and consistency */
 :host {
-  /* Colors */
-  --table-bg: #ffffff;
-  --table-border: #dee2e6;
-  --table-header-bg: #f8f9fa;
-  --table-header-text: #495057;
-  --table-row-hover: #f1f3f9;
-  --table-row-even: #f8f9fa;
-  --table-text-primary: #212529;
-  --table-text-secondary: #6c757d;
-  
-  /* Spacing */
-  --table-spacing-sm: 8px;
-  --table-spacing-md: 12px;
-  --table-spacing-lg: 16px;
-  --table-spacing-xl: 24px;
-  
+  /* Colors - More semantic naming */
+  --generic-table-background-color: #ffffff;
+  --generic-table-border-color: #dee2e6;
+  --generic-table-header-background: #f8f9fa;
+  --generic-table-header-text-color: #495057;
+  --generic-table-row-hover-background: #f1f3f9;
+  --generic-table-row-alternate-background: #f8f9fa;
+  --generic-table-primary-text-color: #212529;
+  --generic-table-secondary-text-color: #6c757d;
+
+  /* Spacing - More descriptive */
+  --generic-table-spacing-small: 8px;
+  --generic-table-spacing-medium: 12px;
+  --generic-table-spacing-large: 16px;
+  --generic-table-spacing-extra-large: 24px;
+
   /* Borders */
-  --table-border-width: 1px;
-  --table-border-radius: 8px;
-  
+  --generic-table-border-size: 1px;
+  --generic-table-border-radius-value: 8px;
+
   /* Shadows */
-  --table-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
-  --table-shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1);
-  
+  --generic-table-shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --generic-table-shadow-moderate: 0 2px 8px rgba(0, 0, 0, 0.1);
+
   /* Typography */
-  --table-font-size-sm: 12px;
-  --table-font-size-base: 14px;
-  --table-font-size-lg: 16px;
-  --table-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-  
-  /* Interactions */
-  --table-transition-fast: 0.15s ease;
-  --table-transition-base: 0.2s ease;
-  --table-focus-color: #007bff;
-  --table-focus-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  --generic-table-font-size-small: 12px;
+  --generic-table-font-size-normal: 14px;
+  --generic-table-font-size-large: 16px;
+  --generic-table-font-family-stack:
+    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+    'Helvetica Neue', sans-serif;
+
+  /* Interactions - More descriptive */
+  --generic-table-transition-duration-quick: 0.15s ease;
+  --generic-table-transition-duration-normal: 0.2s ease;
+  --generic-table-focus-outline-color: #007bff;
+  --generic-table-focus-outline-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+
+  /* Checkbox Custom Properties - More semantic */
+  --generic-table-checkbox-background: transparent;
+  --generic-table-checkbox-border-color: #2c5282;
+  --generic-table-checkbox-border-radius-value: 4px;
+  --generic-table-checkbox-border-size: 2px;
+  --generic-table-checkbox-checked-background: #1565c0;
+  --generic-table-checkbox-checked-border-color: #1565c0;
+  --generic-table-checkbox-checked-icon-color: #ffffff;
+  --generic-table-checkbox-hover-background: #2a4d69;
+  --generic-table-checkbox-hover-border-color: #1565c0;
+  --generic-table-checkbox-unselected-hover-background: #e0e0e0;
+  --generic-table-checkbox-unselected-hover-border-color: #1565c0;
+  --generic-table-checkbox-default-ripple-color: rgb(0, 47, 255);
+  --generic-table-checkbox-checked-ripple-color: rgb(16, 253, 115);
+  --generic-table-checkbox-indeterminate-ripple-color: rgb(249, 253, 16);
+  --generic-table-checkbox-static-ripple-opacity: 0.3;
+  --generic-table-checkbox-dynamic-ripple-opacity: 0.15;
+  --generic-table-checkbox-disabled-background: #37474f;
+  --generic-table-checkbox-disabled-border-color: #4a5568;
+  --generic-table-checkbox-disabled-icon-color: #9e9e9e;
+  --generic-table-checkbox-ripple-background: rgba(21, 101, 192, 0.3);
 }
 
 /* Main container */
 .table {
-  background: var(--table-bg);
-  border: var(--table-border-width) solid var(--table-border);
-  border-radius: var(--table-border-radius);
-  box-shadow: var(--table-shadow-md);
-  font-family: var(--table-font-family);
-  font-size: var(--table-font-size-base);
-  color: var(--table-text-primary);
+  background: var(--generic-table-background-color);
+  border: var(--generic-table-border-size) solid var(--generic-table-border-color);
+  border-radius: var(--generic-table-border-radius-value);
+  box-shadow: var(--generic-table-shadow-moderate);
+  font-family: var(--generic-table-font-family-stack);
+  font-size: var(--generic-table-font-size-normal);
+  color: var(--generic-table-primary-text-color);
   width: 100%;
   border-collapse: collapse;
-  overflow: hidden;
+  empty-cells: show;
 }
 
 /* Table structure */
 .table th,
 .table td {
-  padding: var(--table-spacing-md);
+  padding: var(--generic-table-spacing-medium) var(--generic-table-spacing-large);
   text-align: left;
-  border-bottom: var(--table-border-width) solid var(--table-border);
-  color: var(--table-text-primary);
-  transition: background-color var(--table-transition-base);
+  border-bottom: var(--generic-table-border-size) solid var(--generic-table-border-color);
+  color: var(--generic-table-primary-text-color);
+  transition: background-color var(--generic-table-transition-duration-normal);
 }
 
 .table th {
-  background: var(--table-header-bg);
-  color: var(--table-header-text);
+  background: var(--generic-table-header-background);
+  color: var(--generic-table-header-text-color);
   font-weight: 600;
-  font-size: var(--table-font-size-sm);
+  font-size: var(--generic-table-font-size-small);
   position: sticky;
   top: 0;
   z-index: 10;
-  border-bottom: var(--table-border-width) solid var(--table-border);
+  border-bottom: var(--generic-table-border-size) solid var(--generic-table-border-color);
 }
 
 .table td {
@@ -79,35 +107,35 @@
 }
 
 .table tbody tr {
-  transition: background-color var(--table-transition-base);
+  transition: background-color var(--generic-table-transition-duration-normal);
 
   &:hover {
-    background: var(--table-row-hover);
+    background: var(--generic-table-row-hover-background);
   }
 
   &:nth-child(even) {
-    background: var(--table-row-even);
+    background: var(--generic-table-row-alternate-background);
   }
 }
 
 /* Filters */
 .filters {
-  background: var(--table-header-bg);
-  padding: var(--table-spacing-md);
-  border-bottom: var(--table-border-width) solid var(--table-border);
+  background: var(--generic-table-header-background);
+  padding: var(--generic-table-spacing-medium);
+  border-bottom: var(--generic-table-border-size) solid var(--generic-table-border-color);
 }
 
 .filters__title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--table-text-primary);
+  color: var(--generic-table-primary-text-color);
   margin: 0;
 }
 
 .filters__clear {
   background: none;
   border: none;
-  color: var(--table-text-secondary);
+  color: var(--generic-table-secondary-text-color);
   font-size: 18px;
   cursor: pointer;
   padding: 4px 8px;
@@ -115,8 +143,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--table-row-hover);
-    color: var(--table-text-primary);
+    background: var(--generic-table-row-hover-background);
+    color: var(--generic-table-primary-text-color);
   }
 }
 
@@ -135,17 +163,17 @@
 .filter label {
   font-size: 12px;
   font-weight: 500;
-  color: var(--table-text-primary);
+  color: var(--generic-table-primary-text-color);
   margin-bottom: 4px;
 }
 
 .filter input {
   padding: 8px 12px;
-  border: var(--table-border-width) solid var(--table-border);
+  border: var(--generic-table-border-size) solid var(--generic-table-border-color);
   border-radius: 4px;
-  font-size: var(--table-font-size-base);
+  font-size: var(--generic-table-font-size-normal);
   background: white;
-  color: var(--table-text-primary);
+  color: var(--generic-table-primary-text-color);
   transition: border-color 0.2s ease;
 
   &:focus {
@@ -155,28 +183,65 @@
   }
 
   &::placeholder {
-    color: var(--table-text-secondary);
+    color: var(--generic-table-secondary-text-color);
   }
 }
 
 /* Sort */
 .sort {
-  background: var(--table-header-bg);
-  padding: var(--table-spacing-md);
-  border-bottom: var(--table-border-width) solid var(--table-border);
+  background: var(--generic-table-header-background);
+  padding: var(--generic-table-spacing-medium);
+  border-bottom: var(--generic-table-border-size) solid var(--generic-table-border-color);
 }
 
 .sort__title {
   font-size: 16px;
   font-weight: 600;
-  color: var(--table-text-primary);
+  color: var(--generic-table-primary-text-color);
   margin: 0;
+}
+
+.sort__icon {
+  margin-left: 4px;
+  font-size: 10px;
+  
+  mat-icon {
+    font-size: 16px;
+    height: 16px;
+    width: 16px;
+    line-height: 16px;
+  }
+}
+
+.sort__header {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  
+  mat-icon {
+    font-size: 14px;
+    height: 14px;
+    width: 14px;
+    line-height: 14px;
+  }
+  
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+  }
+  
+  &.active {
+    color: #007bff;
+  }
 }
 
 .sort__clear {
   background: none;
   border: none;
-  color: var(--table-text-secondary);
+  color: var(--generic-table-secondary-text-color);
   font-size: 18px;
   cursor: pointer;
   padding: 4px 8px;
@@ -184,8 +249,8 @@
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--table-row-hover);
-    color: var(--table-text-primary);
+    background: var(--generic-table-row-hover-background);
+    color: var(--generic-table-primary-text-color);
   }
 }
 
@@ -197,17 +262,17 @@
 
 .sort__btn {
   padding: 6px 12px;
-  border: var(--table-border-width) solid var(--table-border);
+  border: var(--generic-table-border-size) solid var(--generic-table-border-color);
   border-radius: 4px;
   background: white;
-  color: var(--table-text-primary);
+  color: var(--generic-table-primary-text-color);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    background: var(--table-row-hover);
+    background: var(--generic-table-row-hover-background);
     border-color: #007bff;
   }
 
@@ -218,45 +283,21 @@
   }
 }
 
-.sort__icon {
-  margin-left: 4px;
-  font-size: 10px;
-}
-
-/* Empty state */
-.empty {
-  text-align: center;
-  padding: 32px;
-  color: var(--table-text-secondary);
-  font-style: italic;
-}
-
-/* Results */
-.results {
-  padding: 12px var(--table-spacing-md);
-  background: var(--table-header-bg);
-  border-top: var(--table-border-width) solid var(--table-border);
-  font-size: 12px;
-  color: var(--table-text-secondary);
-  text-align: center;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .filters__grid {
-    grid-template-columns: 1fr;
-  }
-
-  .sort__controls {
-    flex-direction: column;
-  }
-
-  .table {
-    font-size: 12px;
-  }
-
-  .table th,
-  .table td {
-    padding: 8px 4px;
-  }
+/* Angular Material Checkbox Styling */
+.generic-table {
+  @include mixins.material-checkbox(
+    $bg-color: var(--generic-table-checkbox-background),
+    $border-color: var(--generic-table-checkbox-border-color),
+    $border-radius: var(--generic-table-checkbox-border-radius-value),
+    $border-width: var(--generic-table-checkbox-border-size),
+    $checked-bg: var(--generic-table-checkbox-checked-background),
+    $checked-border: var(--generic-table-checkbox-checked-border-color),
+    $hover-bg: var(--generic-table-checkbox-hover-background),
+    $hover-border: var(--generic-table-checkbox-hover-border-color),
+    $unselected-hover-bg: var(--generic-table-checkbox-unselected-hover-background),
+    $unselected-hover-border: var(--generic-table-checkbox-unselected-hover-border-color),
+    $default-ripple-color: var(--generic-table-checkbox-default-ripple-color),
+    $checked-ripple-color: var(--generic-table-checkbox-checked-ripple-color),
+    $static-ripple-opacity: var(--generic-table-checkbox-static-ripple-opacity)
+  );
 }
