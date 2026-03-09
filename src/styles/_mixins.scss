@@ -1,6 +1,17 @@
 /* Checkbox Styling Mixins */
 
-// Mixin for checkbox ripple styling
+
+/**   MUST USE ON EVERY MATERIAL CHECKBOX (or use the combined mixin below. or die 😊 )
+ * 
+ * @description
+ * Defines ripple styling for checkboxes via a Sass mixin
+ * The mixin accepts several parameters to customize the ripple of the checkbox.
+ *
+ * @param {string} [$default-ripple-color=rgb(0, 47, 255)] - The default ripple color of the checkbox.
+ * @param {string} [$checked-ripple-color=rgb(16, 253, 115)] - The ripple color of the checkbox when checked.
+ * @param {string} [$static-ripple-opacity=0.3] - The opacity of the static ripple of the checkbox.
+ */
+
 @mixin material-checkbox-ripple(
   $default-ripple-color: rgb(0, 47, 255),
   $checked-ripple-color: rgb(16, 253, 115),
@@ -29,7 +40,25 @@
   }
 }
 
-// Mixin for checkbox styling
+
+
+
+/**
+ * @description
+ * Defines the styling for material checkboxes. background and border colors...
+ * 
+ * @param {string} [$bg-color=transparent] - The background color of the checkbox.
+ * @param {string} [$border-color=#2c5282] - The border color of the checkbox.
+ * @param {string} [$border-radius=4px] - The border radius of the checkbox.
+ * @param {string} [$border-width=2px] - The border width of the checkbox.
+ * @param {string} [$checked-bg=#1565c0] - The background color of the checkbox when checked.
+ * @param {string} [$checked-border=#1565c0] - The border color of the checkbox when checked.
+ * @param {string} [$hover-bg=#2a4d69] - The background color of the checkbox when hovered.
+ * @param {string} [$hover-border=#1565c0] - The border color of the checkbox when hovered.
+ * @param {string} [$unselected-hover-bg=#e0e0e0] - The background color of the checkbox when unselected and hovered.
+ * @param {string} [$unselected-hover-border=#1565c0] - The border color of the checkbox when unselected and hovered.
+ *
+ */
 @mixin material-checkbox-styling(
   $bg-color: transparent,
   $border-color: #2c5282,
@@ -80,6 +109,31 @@
 }
 
 // Combined mixin for complete checkbox styling
+
+/**   MUST USE ON EVERY MATERIAL CHECKBOX (or die 😊 )
+ * 
+ * 
+ * Defines the styling for checkboxes via a Sass mixin.
+ * 
+ * @description
+ * This mixin allows you to customize the appearance of Material Design checkboxes
+ * by setting various CSS properties such as background color, border color, border radius, and border width.
+ * It also includes hover effects for both selected and unselected states.
+ *
+ * @param {string} [$bg-color=transparent] - The background color of the checkbox.
+ * @param {string} [$border-color=#2c5282] - The border color of the checkbox.
+ * @param {string} [$border-radius=4px] - The border radius of the checkbox.
+ * @param {string} [$border-width=2px] - The border width of the checkbox.
+ * @param {string} [$checked-bg=#1565c0] - The background color of the checkbox when checked.
+ * @param {string} [$checked-border=#1565c0] - The border color of the checkbox when checked.
+ * @param {string} [$hover-bg=#2a4d69] - The background color of the checkbox when hovered.
+ * @param {string} [$hover-border=#1565c0] - The border color of the checkbox when hovered.
+ * @param {string} [$unselected-hover-bg=#e0e0e0] - The background color of the checkbox when unselected and hovered.
+ * @param {string} [$unselected-hover-border=#1565c0] - The border color of the checkbox when unselected and hovered.
+ * @param {string} [$default-ripple-color=rgb(0, 47, 255)] - The color of the default ripple.
+ * @param {string} [$checked-ripple-color=rgb(16, 253, 115)] - The color of the ripple when the checkbox is checked.
+ * @param {string} [$static-ripple-opacity=0.3] - The opacity of the static ripple.
+ */
 @mixin material-checkbox(
   $bg-color: transparent,
   $border-color: #2c5282,
