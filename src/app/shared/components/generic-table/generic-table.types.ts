@@ -5,6 +5,8 @@ export interface TableColumn<T> {
   label: string;
   sortable?: boolean;
   filterable?: boolean;
+  columnClass?: string;
+  columnCellClass?: string;
 }
 
 export interface TableFilter<T> {

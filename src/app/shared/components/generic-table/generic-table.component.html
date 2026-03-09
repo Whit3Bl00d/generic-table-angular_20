@@ -53,10 +53,15 @@
 
   <section class="table__container">
     <table class="table">
+      <colgroup>
+        @for (column of displayColumns(); track column.key) {
+          <col [class]="column.columnClass" class="generic-table__col" />
+        }
+      </colgroup>
       <thead class="table__header">
         <tr class="table__header__row">
           @for (column of displayColumns(); track column.key) {
-            <th class="table__header__cell">
+            <th class="table__header__cell" [class]="column.columnCellClass">
               @if (column.key === 'checkbox') {
                 <mat-checkbox 
                   [checked]="selectAllState().checked"
@@ -66,7 +71,7 @@
                   [attr.aria-label]="'Select all items'"
                 />
               } @else {
-                {{ column.label }}
+                <span>{{ column.label }}</span>
 
                 @if (showSort() === true && column.sortable && column.key !== 'rowNumber') {
                   <button
@@ -88,7 +93,7 @@
         @for (item of displayData(); track $index) {
           <tr (click)="onRowClick(item)" class="table__row">
             @for (column of displayColumns(); track column.key) {
-              <td class="table__cell">
+              <td class="table__cell" [class]="column.columnCellClass">
                 @if (column.key === 'checkbox') {
                 <mat-checkbox 
                   [checked]="isItemSelected(item)"

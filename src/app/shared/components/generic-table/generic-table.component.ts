@@ -105,17 +105,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     const columns = this.columns();
     const result: TableColumn<any>[] = [...columns];
 
-    // Add row number column first if enabled
-    if (this.showRowNumbers()) {
-      const rowNumberColumn: TableColumn<any> = {
-        key: 'rowNumber',
-        label: this.rowNumberLabel(),
-        sortable: false,
-        filterable: false,
-      };
-      result.unshift(rowNumberColumn);
-    }
-
     // Add checkbox column first if selection model is provided
     // This ensures checkboxes appear as the leftmost column
     if (this.selectionModel()) {
@@ -124,8 +113,23 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
         label: '',
         sortable: false,
         filterable: false,
+        columnClass: 'generic-table__col--checkbox',
+        columnCellClass: 'generic-table__cell--checkbox'
       };
       result.unshift(checkboxColumn);
+    }
+
+    // Add row number column if enabled
+    if (this.showRowNumbers()) {
+      const rowNumberColumn: TableColumn<any> = {
+        key: 'rowNumber',
+        label: this.rowNumberLabel(),
+        sortable: false,
+        filterable: false,
+        columnClass: 'generic-table__col--row-number',
+        columnCellClass: 'generic-table__cell--row-number'
+      };
+      result.unshift(rowNumberColumn);
     }
 
     return result as TableColumn<T>[];

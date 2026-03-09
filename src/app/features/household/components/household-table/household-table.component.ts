@@ -90,18 +90,24 @@ export class HouseholdTableComponent implements OnDestroy {
         label: 'Name',
         sortable: true,
         filterable: true,
+        columnClass: 'household-table__col--name',
+        columnCellClass: 'household-table__cell--name'
       },
       {
         key: 'type',
         label: 'Type',
         sortable: true,
         filterable: true,
+        columnClass: 'household-table__col--type',
+        columnCellClass: 'household-table__cell--type'
       },
       {
         key: 'quantity',
         label: 'Quantity',
         sortable: true,
         filterable: false,
+        columnClass: 'household-table__col--quantity',
+        columnCellClass: 'household-table__cell--quantity'
       },
     ];
     return columns;
