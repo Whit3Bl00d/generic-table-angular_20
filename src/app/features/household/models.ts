@@ -5,6 +5,7 @@ export interface HouseholdItem {
   name: string;
   quantity: number;
   type: ItemType;
+  collectionDate?: Date;
 }
 
 export const FURNITURE_TYPES = [

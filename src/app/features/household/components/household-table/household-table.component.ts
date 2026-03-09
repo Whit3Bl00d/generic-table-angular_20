@@ -7,7 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 
 import { SelectionModel } from '@angular/cdk/collections';
 
@@ -19,21 +19,35 @@ import type { TableColumn } from '../../../../shared/components/generic-table/ge
 
 import { Subscription } from 'rxjs';
 
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+
 @Component({
   selector: 'app-household-table',
 
   standalone: true,
 
-  imports: [CommonModule, GenericTableComponent],
+  imports: [
+  CommonModule, 
+  GenericTableComponent,
+  MatDatepickerModule,
+  MatInputModule,
+  MatFormFieldModule,
+],
 
   templateUrl: './household-table.component.html',
 
   styleUrls: ['./household-table.component.scss'],
 
   changeDetection: ChangeDetectionStrategy.OnPush,
+
+  providers: [DatePipe],
 })
 export class HouseholdTableComponent implements OnDestroy {
   items = input<HouseholdItem[]>([]);
+
+  constructor(private datePipe: DatePipe) {}
 
   // Store previous selection as regular variable
 
@@ -109,9 +123,26 @@ export class HouseholdTableComponent implements OnDestroy {
         columnClass: 'household-table__col--quantity',
         columnCellClass: 'household-table__cell--quantity'
       },
+      {
+        key: 'collectionDate',
+        label: 'Collection Date',
+        sortable: true,
+        filterable: false,
+        columnClass: 'household-table__col--date',
+        columnCellClass: 'household-table__cell--date',
+        formatter: (item: HouseholdItem, key: keyof HouseholdItem) => this.formatDate(item[key as keyof HouseholdItem])
+      },
     ];
     return columns;
   });
+
+  formatDate(value: any): string {
+    if (!value) return '';
+    if (value instanceof Date) {
+      return this.datePipe.transform(value, 'mediumDate') || '';
+    }
+    return '';
+  }
 
   /**
    * Clears all current selections in the selection model

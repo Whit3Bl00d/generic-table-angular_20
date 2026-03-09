@@ -286,6 +286,12 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
       return item.rowNumber;
     }
 
+    // Check if column has a formatter
+    const column = this.displayColumns().find(col => col.key === key);
+    if (column?.formatter) {
+      return column.formatter(item, key as keyof T);
+    }
+
     return item[key as keyof T];
   }
 

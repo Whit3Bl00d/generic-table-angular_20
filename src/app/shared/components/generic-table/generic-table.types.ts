@@ -7,6 +7,7 @@ export interface TableColumn<T> {
   filterable?: boolean;
   columnClass?: string;
   columnCellClass?: string;
+  formatter?: (item: T, key: keyof T) => string;
 }
 
 export interface TableFilter<T> {

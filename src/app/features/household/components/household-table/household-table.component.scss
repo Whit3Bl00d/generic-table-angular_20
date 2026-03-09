@@ -27,7 +27,7 @@
       }
 
       &--type {
-        width: 30%;
+        width: 25%;
         min-width: 100px;
       }
 
@@ -35,6 +35,12 @@
         width: 15%;
         min-width: 80px;
         text-align: right;
+      }
+
+      &--date {
+        width: 20%;
+        min-width: 120px;
+        text-align: center;
       }
     }
 
@@ -61,6 +67,14 @@
         &.table__cell {
           color: #27ae60 !important;
         }
+      }
+
+      &--date {
+        text-align: center;
+        font-family: monospace;
+        font-weight: 500;
+        color: #8e44ad;
+        white-space: nowrap;
       }
     }
   }
