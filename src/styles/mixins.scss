@@ -23,7 +23,7 @@
     background-color: rgb(21, 101, 192) !important;
     opacity: 0 !important;
     transition: opacity 0.2s ease;
-    
+
     // Show static ripple on hover
     &:hover {
       opacity: $static-ripple-opacity !important;
@@ -71,7 +71,6 @@
   $unselected-hover-bg: #e0e0e0,
   $unselected-hover-border: #1565c0
 ) {
-
   // Base checkbox styling
   ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
     background-color: $bg-color;
@@ -81,8 +80,16 @@
   }
 
   // Checked and indeterminate states
-  ::ng-deep .mat-mdc-checkbox.mdc-checkbox--selected .mdc-form-field .mdc-checkbox .mdc-checkbox__background,
-  ::ng-deep .mat-mdc-checkbox.mdc-checkbox--indeterminate .mdc-form-field .mdc-checkbox .mdc-checkbox__background {
+  ::ng-deep
+    .mat-mdc-checkbox.mdc-checkbox--selected
+    .mdc-form-field
+    .mdc-checkbox
+    .mdc-checkbox__background,
+  ::ng-deep
+    .mat-mdc-checkbox.mdc-checkbox--indeterminate
+    .mdc-form-field
+    .mdc-checkbox
+    .mdc-checkbox__background {
     background-color: $checked-bg;
     border-color: $checked-border;
   }
@@ -95,14 +102,24 @@
   }
 
   // Hover styles for checked/indeterminate
-  ::ng-deep .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled) .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
-  ::ng-deep .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled) .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
+  ::ng-deep
+    .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled)
+    .mdc-checkbox__native-control:enabled:checked
+    ~ .mdc-checkbox__background,
+  ::ng-deep
+    .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled)
+    .mdc-checkbox__native-control:enabled:indeterminate
+    ~ .mdc-checkbox__background {
     border-color: $hover-border;
     background-color: $hover-bg;
   }
 
   // Hover for unselected checkboxes
-  ::ng-deep .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled):not(.mdc-checkbox--selected):not(.mdc-checkbox--indeterminate) .mdc-checkbox__background {
+  ::ng-deep
+    .mat-mdc-checkbox:hover:not(.mdc-checkbox--disabled):not(.mdc-checkbox--selected):not(
+      .mdc-checkbox--indeterminate
+    )
+    .mdc-checkbox__background {
     background-color: $unselected-hover-bg;
     border-color: $unselected-hover-border;
   }
@@ -167,4 +184,63 @@
     $checked-ripple-color,
     $static-ripple-opacity
   );
+}
+
+@mixin material-date-picker-colors() {
+  :ng-deep {
+    .mat-calendar {
+      background: #ffffff;
+      color: #333333;
+
+      .mat-calendar-header {
+        background: #f5f5f5;
+        border-bottom: 1px solid #e0e0e0;
+
+        .mat-calendar-period-button {
+          color: #333333;
+
+          &:hover {
+            background: rgba(0, 123, 255, 0.1);
+          }
+        }
+      }
+
+      .mat-calendar-body-cell {
+        color: #333333;
+        border: 1px solid transparent;
+
+        &:hover {
+          background: rgba(0, 123, 255, 0.1);
+          border-color: #007bff;
+        }
+
+        &.mat-calendar-body-active {
+          background: #007bff;
+          color: #ffffff;
+          border-color: #007bff;
+        }
+
+        &.mat-calendar-body-today {
+          border-color: #007bff;
+          font-weight: 600;
+        }
+      }
+    }
+
+    .mat-datepicker-content {
+      background: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .mat-datepicker-close-button {
+      background: #007bff;
+      color: #ffffff;
+
+      &:hover {
+        background: #0056b3;
+      }
+    }
+  }
 }
