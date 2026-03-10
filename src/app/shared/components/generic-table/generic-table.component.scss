@@ -2,7 +2,7 @@
 
 /* Import Angular Material theme */
 @use '@angular/material' as mat;
-@use '../../../../styles/_mixins.scss' as mixins;
+@use 'src/styles/mixins.scss' as mixins;
 
 /* CSS Custom Properties for theming and consistency */
 :host {
