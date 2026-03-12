@@ -11,7 +11,7 @@ import { CommonModule, DatePipe } from '@angular/common';
 
 import { SelectionModel } from '@angular/cdk/collections';
 
-import type { HouseholdItem } from '../../models';
+import { DateRange, HouseholdItem } from '../../models';
 
 import { GenericTableComponent } from '../../../../shared/components/generic-table/generic-table.component';
 
@@ -130,19 +130,11 @@ export class HouseholdTableComponent implements OnDestroy {
         filterable: false,
         columnClass: 'household-table__col--date',
         columnCellClass: 'household-table__cell--date',
-        formatter: (item: HouseholdItem, key: keyof HouseholdItem) => this.formatDate(item[key as keyof HouseholdItem])
+        formatter: (item: HouseholdItem) => HouseholdItem.formatDate(item)
       },
     ];
     return columns;
   });
-
-  formatDate(value: any): string {
-    if (!value) return '';
-    if (value instanceof Date) {
-      return this.datePipe.transform(value, 'mediumDate') || '';
-    }
-    return '';
-  }
 
   /**
    * Clears all current selections in the selection model

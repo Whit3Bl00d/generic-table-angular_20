@@ -1,21 +1,50 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="furniture-form">
   <div class="form-group">
-    <label for="furniture">Furniture Type:</label>
-    <select formControlName="furniture" id="furniture" required>
-      <option value="">Choose furniture...</option>
-      @for (type of furnitureTypes; track type) {
-        <option [value]="type">{{ type }}</option>
-      }
-    </select>
+    <label>Furniture Type</label>
+
+    <mat-form-field appearance="outline">
+      <mat-select formControlName="name" id="furniture" required>
+        <mat-option value="">Choose furniture...</mat-option>
+        @for (type of furnitureTypes; track type) {
+          <mat-option [value]="type">{{ type }}</mat-option>
+        }
+      </mat-select>
+    </mat-form-field>
   </div>
   
   <div class="form-group">
-    <label for="count">Count:</label>
-    <input 
-      formControlName="count"
-      id="count" 
-      type="number" 
-    />
+    <label>Count</label>
+
+    <mat-form-field appearance="outline">
+      <input 
+        matInput
+        formControlName="quantity"
+        id="count" 
+        type="number" 
+      />
+    </mat-form-field>
+  </div>
+
+  <div class="form-group">
+    <label>Collection Date</label>
+
+    <div class="custom-datepicker">
+      <mat-form-field appearance="outline">
+        <input 
+          matInput 
+          [matDatepicker]="picker"
+          formControlName="collectionDate"
+          id="collectionDate"
+          placeholder="Select collection date"
+        />
+
+        <mat-datepicker-toggle matSuffix [for]="picker">
+          <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+        </mat-datepicker-toggle>
+        
+        <mat-datepicker #picker [panelClass]="['furniture-datepicker-panel']"></mat-datepicker>
+      </mat-form-field>
+    </div>
   </div>
   
   <button type="submit" [disabled]="!form.valid">Add Furniture</button>

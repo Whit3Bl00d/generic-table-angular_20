@@ -1,19 +1,46 @@
 <form [formGroup]="form" (ngSubmit)="onSubmit()" class="add-form">
   <div class="form-group">
-    <label for="name">Item Name:</label>
-    <input 
-      formControlName="name"
-      id="name"
-      placeholder="Enter item name" 
-    />
+    <label>Item Name</label>
+
+    <mat-form-field appearance="outline">
+      <input matInput formControlName="name" id="name" placeholder="Enter item name" />
+    </mat-form-field>
   </div>
+
   <div class="form-group">
-    <label for="quantity">Quantity:</label>
-    <input 
-      formControlName="quantity"
-      id="quantity"
-      type="number" 
-    />
+    <label>Quantity</label>
+
+    <mat-form-field appearance="outline">
+      <input matInput formControlName="quantity" id="quantity" type="number" />
+    </mat-form-field>
+  </div>
+
+  <div class="form-group">
+    <label>Collection Date Range</label>
+
+    <mat-form-field appearance="outline">
+      <mat-date-range-input
+        class="household-date-range-input"
+        [rangePicker]="picker"
+        [comparisonStart]="compStart"
+        [comparisonEnd]="compEnd"
+        formGroupName="collectionDateRange"
+      >
+        <input matStartDate placeholder="Start date" formControlName="start" />
+        <input matEndDate placeholder="End date" formControlName="end" />
+      </mat-date-range-input>
+
+      <mat-datepicker-toggle matSuffix [for]="picker">
+        <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+      </mat-datepicker-toggle>
+
+      <mat-date-range-picker [panelClass]="['household-datepicker-panel']" #picker>
+        <mat-date-range-picker-actions>
+          <button matButton matDateRangePickerCancel>Cancel</button>
+          <button matButton="elevated" matDateRangePickerApply>Apply</button>
+        </mat-date-range-picker-actions>
+      </mat-date-range-picker>
+    </mat-form-field>
   </div>
   <button type="submit" [disabled]="!form.valid">Add Item</button>
 </form>

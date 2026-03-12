@@ -21,7 +21,9 @@
   // Static ripple styling
   ::ng-deep .mat-mdc-checkbox .mdc-checkbox__ripple {
     background-color: rgb(21, 101, 192) !important;
+
     opacity: 0 !important;
+
     transition: opacity 0.2s ease;
 
     // Show static ripple on hover
@@ -74,8 +76,11 @@
   // Base checkbox styling
   ::ng-deep .mat-mdc-checkbox .mdc-checkbox__background {
     background-color: $bg-color;
+
     border-color: $border-color;
+
     border-radius: $border-radius;
+
     border-width: $border-width;
   }
 
@@ -91,6 +96,7 @@
     .mdc-checkbox
     .mdc-checkbox__background {
     background-color: $checked-bg;
+
     border-color: $checked-border;
   }
 
@@ -98,6 +104,7 @@
   ::ng-deep .mdc-checkbox__native-control:enabled:checked ~ .mdc-checkbox__background,
   ::ng-deep .mdc-checkbox__native-control:enabled:indeterminate ~ .mdc-checkbox__background {
     border-color: $checked-border;
+
     background-color: $checked-bg;
   }
 
@@ -111,6 +118,7 @@
     .mdc-checkbox__native-control:enabled:indeterminate
     ~ .mdc-checkbox__background {
     border-color: $hover-border;
+
     background-color: $hover-bg;
   }
 
@@ -121,6 +129,7 @@
     )
     .mdc-checkbox__background {
     background-color: $unselected-hover-bg;
+
     border-color: $unselected-hover-border;
   }
 }
@@ -186,60 +195,131 @@
   );
 }
 
-@mixin material-date-picker-colors() {
-  :ng-deep {
-    .mat-calendar {
-      background: #ffffff;
-      color: #333333;
+/** 
+* MUST BE USED UNDER:
+*   ::ng-deep mat-datepicker-content:has(.[datepicker-panelClass]) { @mixin }
+*
+* DO NOT ENCAPSULATE the ng-deep selector with any other selector.
+*/
+@mixin material-datepicker-base-colors(
+  $panel-background-color: white,
+  $highlight: #3f51b5,
+  $text-color: rgba(0, 0, 0, 0.87)
+) {
+  $secondary-text-color: color-mix(in srgb, #{$text-color} 66%, transparent);
+  $header-divider-color: $text-color;
+  $selected-contrast-color: $panel-background-color;
 
-      .mat-calendar-header {
-        background: #f5f5f5;
-        border-bottom: 1px solid #e0e0e0;
+  --mat-datepicker-calendar-container-background-color: #{$panel-background-color};
+  --mat-datepicker-calendar-header-divider-color: #{$header-divider-color};
 
-        .mat-calendar-period-button {
-          color: #333333;
+  --mat-datepicker-calendar-date-in-range-state-background-color: color-mix(
+    in srgb,
+    #{$highlight} 20%,
+    transparent
+  );
+  --mat-datepicker-calendar-date-selected-state-background-color: #{$highlight};
+  --mat-datepicker-calendar-date-selected-disabled-state-background-color: color-mix(
+    in srgb,
+    #{$highlight} 38%,
+    transparent
+  );
 
-          &:hover {
-            background: rgba(0, 123, 255, 0.1);
-          }
-        }
-      }
+  --mat-datepicker-calendar-date-focus-state-background-color: color-mix(
+    in srgb,
+    #{$highlight} 12%,
+    transparent
+  );
 
-      .mat-calendar-body-cell {
-        color: #333333;
-        border: 1px solid transparent;
+  --mat-datepicker-calendar-date-hover-state-background-color: color-mix(
+    in srgb,
+    #{$highlight} 4%,
+    transparent
+  );
 
-        &:hover {
-          background: rgba(0, 123, 255, 0.1);
-          border-color: #007bff;
-        }
+  --mat-datepicker-toggle-active-state-icon-color: #{$highlight};
 
-        &.mat-calendar-body-active {
-          background: #007bff;
-          color: #ffffff;
-          border-color: #007bff;
-        }
+  --mat-datepicker-calendar-date-selected-state-text-color: #{$selected-contrast-color};
+  --mat-datepicker-calendar-date-today-selected-state-outline-color: #{$selected-contrast-color};
 
-        &.mat-calendar-body-today {
-          border-color: #007bff;
-          font-weight: 600;
-        }
+  --mat-datepicker-toggle-icon-color: #{$secondary-text-color};
+  --mat-datepicker-calendar-body-label-text-color: #{$secondary-text-color};
+  --mat-datepicker-calendar-period-button-text-color: #{$text-color};
+  --mat-datepicker-calendar-period-button-icon-color: #{$secondary-text-color};
+  --mat-datepicker-calendar-navigation-button-icon-color: #{$secondary-text-color};
+  --mat-datepicker-calendar-header-text-color: #{$secondary-text-color};
+  --mat-datepicker-calendar-date-today-outline-color: #{$secondary-text-color};
+  --mat-datepicker-calendar-date-preview-state-outline-color: #{$secondary-text-color};
+
+  --mat-datepicker-calendar-date-disabled-state-text-color: color-mix(
+    in srgb,
+    #{$text-color} 38%,
+    transparent
+  );
+
+  --mat-datepicker-calendar-container-text-color: #{$text-color};
+
+  --mat-datepicker-calendar-date-today-disabled-state-outline-color: color-mix(
+    in srgb,
+    #{$text-color} 38%,
+    transparent
+  );
+  --mat-datepicker-calendar-date-text-color: #{$text-color};
+}
+
+/** 
+* MUST BE USED UNDER:
+*   ::ng-deep mat-datepicker-content:has(.[datepicker-panelClass]) { @mixin }
+*
+* DO NOT ENCAPSULATE the ng-deep selector with any other selector.
+*/
+@mixin material-datepicker-comparison-colors(
+  $compare-range-color: #ff4081,
+  $in-compare-highlight: rgb(69.5241935484, 163.4758064516, 93.9516129032),
+  $in-compare-range-color: #a8dab5
+) {
+  --mat-datepicker-calendar-date-in-comparison-range-state-background-color: color-mix(
+    in srgb,
+    #{$compare-range-color} 20%,
+    transparent
+  );
+
+  --mat-datepicker-calendar-date-in-overlap-range-state-background-color: #{$in-compare-range-color};
+
+  --mat-datepicker-calendar-date-in-overlap-range-selected-state-background-color: #{$in-compare-highlight};
+}
+
+/**  */
+@mixin material-datepicker-range-input($text-color: rgba(0, 0, 0, 0.87)) {
+  --mat-form-field-outlined-input-text-color: #{$text-color};
+  --mat-datepicker-range-input-separator-color: #{$text-color};
+  --mat-datepicker-range-input-disabled-state-separator-color: color-mix(
+    in srgb,
+    #{$text-color} 38%,
+    transparent
+  );
+  --mat-datepicker-range-input-disabled-state-text-color: color-mix(
+    in srgb,
+    #{$text-color} 38%,
+    transparent
+  );
+
+  ::ng-deep {
+    .mat-date-range-input-separator{
+      margin-inline: 0.5rem;
+    }
+    .mat-date-range-input-wrapper {
+      width: 100%;
+      max-width: unset !important;
+
+      input{
+        text-align: end;
+        padding: 0;
       }
     }
-
-    .mat-datepicker-content {
-      background: #ffffff;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .mat-datepicker-close-button {
-      background: #007bff;
-      color: #ffffff;
-
-      &:hover {
-        background: #0056b3;
+    .mat-date-range-input-end-wrapper {
+      input{
+        text-align: start;
       }
     }
   }

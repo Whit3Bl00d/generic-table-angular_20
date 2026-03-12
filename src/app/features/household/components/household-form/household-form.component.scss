@@ -1,3 +1,5 @@
+@use '../../../../../styles/mixins.scss' as mixins;
+
 .add-form {
   display: flex;
   gap: 0.5rem;
@@ -11,4 +13,21 @@ input {
 
 button {
   padding: 0.4rem 0.6rem;
+}
+.household-date-range-input {
+  @include mixins.material-datepicker-range-input($text-color: rgb(255, 0, 0));
+}
+
+::ng-deep mat-datepicker-content:has(.household-datepicker-panel) {
+  @include mixins.material-datepicker-base-colors(
+    $panel-background-color: rgb(20, 36, 107),
+    $text-color: rgb(255, 255, 255),
+    $highlight: #51d6ff7a
+  );
+
+  @include mixins.material-datepicker-comparison-colors(
+    $compare-range-color: #ff6600,
+    $in-compare-highlight: rgba(0, 255, 191, 0.486),
+    $in-compare-range-color: #a8dac57a
+  );
 }

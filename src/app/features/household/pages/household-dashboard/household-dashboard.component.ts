@@ -41,25 +41,13 @@ export class HouseholdDashboardComponent implements OnDestroy {
     return this.itemsSignal().filter((i) => i.name.toLowerCase().includes(q));
   });
 
-  addItem(data: { name: string; quantity: number }) {
-    const item: HouseholdItem = { 
-      id: generateId(), 
-      name: data.name, 
-      quantity: data.quantity,
-      type: 'general' as ItemType
-    };
-    this.itemsSignal.update((curr) => [...curr, item]);
+  addItem(data: HouseholdItem) {
+    this.itemsSignal.update((curr) => [...curr, data]);
     this.clearError();
   }
 
-  addFurniture(data: { furniture: string; count: number }) {
-    const item: HouseholdItem = { 
-      id: generateId(), 
-      name: data.furniture, 
-      quantity: data.count,
-      type: 'furniture' as ItemType
-    };
-    this.itemsSignal.update((curr) => [...curr, item]);
+  addFurniture(data: HouseholdItem) {
+    this.itemsSignal.update((curr) => [...curr, data]);
     this.clearError();
   }
 
