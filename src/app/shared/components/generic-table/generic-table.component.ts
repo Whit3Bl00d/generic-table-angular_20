@@ -26,6 +26,9 @@ import type { TableColumn, TableFilter, TableSort } from './generic-table.types'
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class GenericTableComponent<T extends Record<string | number, any>> {
+  // Constants
+  private readonly SCROLL_THRESHOLD = 50; // Distance from bottom in pixels
+
   // Inputs
   data = input.required<T[]>();
   columns = input.required<TableColumn<T>[]>();
@@ -39,6 +42,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
 
   // Outputs
   @Output() rowClick = new EventEmitter<T>();
+  @Output() scrollEnd = new EventEmitter<void>();
 
   // Private signals
   private filterSignal = signal<TableFilter<T>[]>([]);
@@ -301,5 +305,13 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
 
   clearSort(): void {
     this.sortSignal.set(null);
+  }
+
+  onScroll(event: Event): void {
+    const element = event.target as HTMLElement;
+    
+    if (element.scrollHeight - element.scrollTop - element.clientHeight <= this.SCROLL_THRESHOLD) {
+      this.scrollEnd.emit();
+    }
   }
 }

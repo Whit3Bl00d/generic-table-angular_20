@@ -1,12 +1,14 @@
 <div class="generic-table">
   @if (showFilters() === true && filterableColumns().length > 0) {
-    <section class="filters">
-      <header>
+    <form class="filters" (reset)="clearFilters()">
+      <header class="filters__header">
         <title class="filters__title">Filters</title>
 
-        <button class="filters__clear" (click)="clearFilters()" title="Clear all filters">✕</button>
+        <button type="reset" class="filters__clear" title="Clear all filters">
+          <mat-icon>clear</mat-icon>
+          <!-- TODO: Add Trash can component -->
+        </button>
       </header>
-
       <div class="filters__grid">
         @for (column of filterableColumns(); track column.key) {
           <div class="filter">
@@ -21,7 +23,7 @@
           </div>
         }
       </div>
-    </section>
+    </form>
   }
 
   @if (showSortShowcase() === true) {
@@ -29,7 +31,10 @@
       <header>
         <title class="sort__title">Sort</title>
 
-        <button class="sort__clear" (click)="clearSort()" title="Clear sort">✕</button>
+        <button class="sort__clear" (click)="clearSort()" title="Clear sort">
+          <mat-icon>clear</mat-icon>
+          <!-- TODO: Add Trash can component -->
+        </button>
       </header>
 
       <div class="sort__controls">
@@ -51,7 +56,7 @@
     </section>
   }
 
-  <section class="table__container">
+  <section class="table-container" (scroll)="onScroll($event)">
     <table class="table">
       <colgroup>
         @for (column of displayColumns(); track column.key) {
@@ -63,7 +68,7 @@
           @for (column of displayColumns(); track column.key) {
             <th class="table__header__cell" [class]="column.columnCellClass">
               @if (column.key === 'checkbox') {
-                <mat-checkbox 
+                <mat-checkbox
                   [checked]="selectAllState().checked"
                   [indeterminate]="selectAllState().indeterminate"
                   [disabled]="selectAllState().disabled"
@@ -95,20 +100,20 @@
             @for (column of displayColumns(); track column.key) {
               <td class="table__cell" [class]="column.columnCellClass">
                 @if (column.key === 'checkbox') {
-                <mat-checkbox 
-                  [checked]="isItemSelected(item)"
-                  (change)="onCheckboxChange(item, $event.checked)"
-                  [disabled]="!selectionModel()"
-                  [attr.aria-label]="'Select item'"
-                />
-              } @else {
+                  <mat-checkbox
+                    [checked]="isItemSelected(item)"
+                    (change)="onCheckboxChange(item, $event.checked)"
+                    [disabled]="!selectionModel()"
+                    [attr.aria-label]="'Select item'"
+                  />
+                } @else {
                   {{ getDisplayValue(item, column.key) }}
                 }
               </td>
             }
           </tr>
         }
-        
+
         @if (filteredAndSortedData().length === 0) {
           <tr class="table__row--empty">
             <td [attr.colspan]="displayColumns().length" class="table__cell--empty">

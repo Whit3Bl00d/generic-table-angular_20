@@ -1,6 +1,17 @@
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
 .household-dashboard {
+  display: flex;
+  flex-direction: column;
+  width: 90%;
+  height: 100%;
+
+  box-sizing: border-box; 
   padding: 1rem;
-  max-width: 900px;
   margin: 0 auto;
 }
 
@@ -30,37 +41,48 @@ input:focus {
 }
 
 .forms-section {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  flex: 1;
+  display: flex;
+  width: 100%;
   gap: 24px;
-  margin: 24px 0;
+  overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .forms-section {
-    grid-template-columns: 1fr;
-  }
+.flex-vert--full-size {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.form-container {
+.household {
+  width: 100%;
   background: #f8f9fa;
+  box-sizing: border-box;
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #e9ecef;
 }
 
-.form-container h3 {
+.household h3 {
   margin: 0 0 16px 0;
   color: #495057;
   font-size: 16px;
   font-weight: 600;
 }
 
-.table-section h3 {
-  margin: 24px 0 12px 0;
-  color: #495057;
-  font-size: 18px;
-  font-weight: 600;
+.table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  h3 {
+    margin: 24px 0 12px 0;
+    color: #495057;
+    font-size: 18px;
+    font-weight: 600;
+  }
 }
 
 .error-message {

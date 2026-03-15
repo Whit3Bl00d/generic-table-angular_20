@@ -11,24 +11,41 @@
   <div class="search-section">
     <label>
       Search items:
-      <input type="text" [value]="search()" (input)="setSearch($event)" placeholder="Search by name..." />
+      <input
+        type="text"
+        [value]="search()"
+        (input)="setSearch($event)"
+        placeholder="Search by name..."
+      />
     </label>
   </div>
 
   <div class="forms-section">
-    <div class="form-container">
-      <h3>Add Item</h3>
-      <app-household-form (addItem)="addItem($event)" (error)="showError($event)"></app-household-form>
-    </div>
+    <div class="flex-vert--full-size">
 
-    <div class="form-container">
+      <div class="household">
+        <h3>Add Item</h3>
+        
+        <app-household-form
+        (addItem)="addItem($event)"
+        (error)="showError($event)"
+        ></app-household-form>
+      </div>
+      
+      <div class="table">
+        <h3>Inventory</h3>
+        
+        <app-household-table [items]="filteredItems()"></app-household-table>
+      </div>
+    </div>
+      
+    <div class="furniture">
       <h3>Add Furniture</h3>
-      <app-furniture-form (addFurniture)="addFurniture($event)" (error)="showError($event)"></app-furniture-form>
-    </div>
-  </div>
 
-  <div class="table-section">
-    <h3>Inventory</h3>
-    <app-household-table [items]="filteredItems()"></app-household-table>
+      <app-furniture-form
+        (addFurniture)="addFurniture($event)"
+        (error)="showError($event)"
+      ></app-furniture-form>
+    </div>
   </div>
 </section>
