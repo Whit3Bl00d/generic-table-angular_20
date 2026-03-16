@@ -21,7 +21,7 @@ const SEARCH_DEBOUNCE_MS = 300;
 })
 export class HouseholdDashboardComponent implements OnDestroy {
   private itemsSignal = signal<HouseholdItem[]>([]);
-  readonly items = this.itemsSignal;
+  readonly maxDataCount = signal<number>(10);
 
   private searchSubject = new Subject<string>();
   readonly search = toSignal(

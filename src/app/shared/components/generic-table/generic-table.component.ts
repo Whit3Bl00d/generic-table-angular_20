@@ -7,6 +7,8 @@ import {
   EventEmitter,
   ChangeDetectionStrategy,
   TemplateRef,
+  effect,
+  untracked,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -28,6 +30,7 @@ import type { TableColumn, TableFilter, TableSort } from './generic-table.types'
 export class GenericTableComponent<T extends Record<string | number, any>> {
   // Constants
   private readonly SCROLL_THRESHOLD = 50; // Distance from bottom in pixels
+  private isScrollLoading = false;
 
   // Inputs
   data = input.required<T[]>();
@@ -39,16 +42,32 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   showRowNumbers = input<boolean>(false);
   rowNumberLabel = input<string>('#');
   selectionModel = input<SelectionModel<T> | undefined>(undefined);
+  maxDataCount = input<number>(0);
 
   // Outputs
   @Output() rowClick = new EventEmitter<T>();
   @Output() scrollEnd = new EventEmitter<void>();
+
+  constructor() {
+    effect(() => {
+    this.data(); // Track the data signal
+    
+    // Use untracked so we don't create a dependency on the boolean
+    untracked(() => {
+      this.isScrollLoading = false; 
+    });
+  });
+  }
 
   // Private signals
   private filterSignal = signal<TableFilter<T>[]>([]);
   private sortSignal = signal<TableSort<T> | null>(null);
 
   // Computed properties
+  readonly hasMoreData = computed(() => {
+    return this.data().length < this.maxDataCount();
+  });
+
   readonly filteredAndSortedData = computed(() => {
     let data = [...this.data()];
 
@@ -118,7 +137,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
         sortable: false,
         filterable: false,
         columnClass: 'generic-table__col--checkbox',
-        columnCellClass: 'generic-table__cell--checkbox'
+        columnCellClass: 'generic-table__cell--checkbox',
       };
       result.unshift(checkboxColumn);
     }
@@ -131,7 +150,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
         sortable: false,
         filterable: false,
         columnClass: 'generic-table__col--row-number',
-        columnCellClass: 'generic-table__cell--row-number'
+        columnCellClass: 'generic-table__cell--row-number',
       };
       result.unshift(rowNumberColumn);
     }
@@ -291,7 +310,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     }
 
     // Check if column has a formatter
-    const column = this.displayColumns().find(col => col.key === key);
+    const column = this.displayColumns().find((col) => col.key === key);
     if (column?.formatter) {
       return column.formatter(item);
     }
@@ -308,10 +327,16 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   }
 
   onScroll(event: Event): void {
+    if (this.isScrollLoading || !this.hasMoreData()) {
+      return;
+    }
+
     const element = event.target as HTMLElement;
-    
+
+    //at bottom of scroll
     if (element.scrollHeight - element.scrollTop - element.clientHeight <= this.SCROLL_THRESHOLD) {
       this.scrollEnd.emit();
+      this.isScrollLoading = true;
     }
   }
 }

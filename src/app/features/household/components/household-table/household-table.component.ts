@@ -29,12 +29,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   standalone: true,
 
   imports: [
-  CommonModule, 
-  GenericTableComponent,
-  MatDatepickerModule,
-  MatInputModule,
-  MatFormFieldModule,
-],
+    CommonModule,
+    GenericTableComponent,
+    MatDatepickerModule,
+    MatInputModule,
+    MatFormFieldModule,
+  ],
 
   templateUrl: './household-table.component.html',
 
@@ -46,6 +46,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 })
 export class HouseholdTableComponent implements OnDestroy {
   items = input<HouseholdItem[]>([]);
+  maxDataCount = input<number>(0);
 
   constructor(private datePipe: DatePipe) {}
 
@@ -105,7 +106,7 @@ export class HouseholdTableComponent implements OnDestroy {
         sortable: true,
         filterable: true,
         columnClass: 'household-table__col--name',
-        columnCellClass: 'household-table__cell--name'
+        columnCellClass: 'household-table__cell--name',
       },
       {
         key: 'type',
@@ -113,7 +114,7 @@ export class HouseholdTableComponent implements OnDestroy {
         sortable: true,
         filterable: true,
         columnClass: 'household-table__col--type',
-        columnCellClass: 'household-table__cell--type'
+        columnCellClass: 'household-table__cell--type',
       },
       {
         key: 'quantity',
@@ -121,7 +122,7 @@ export class HouseholdTableComponent implements OnDestroy {
         sortable: true,
         filterable: false,
         columnClass: 'household-table__col--quantity',
-        columnCellClass: 'household-table__cell--quantity'
+        columnCellClass: 'household-table__cell--quantity',
       },
       {
         key: 'collectionDate',
@@ -130,7 +131,7 @@ export class HouseholdTableComponent implements OnDestroy {
         filterable: false,
         columnClass: 'household-table__col--date',
         columnCellClass: 'household-table__cell--date',
-        formatter: (item: HouseholdItem) => HouseholdItem.formatDate(item)
+        formatter: (item: HouseholdItem) => HouseholdItem.formatDate(item),
       },
     ];
     return columns;
