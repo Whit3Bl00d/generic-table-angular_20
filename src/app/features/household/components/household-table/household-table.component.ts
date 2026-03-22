@@ -5,29 +5,22 @@ import {
   signal,
   ChangeDetectionStrategy,
   OnDestroy,
+  output,
 } from '@angular/core';
 
-import { CommonModule, DatePipe } from '@angular/common';
-
+import { CommonModule } from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
-
-import { DateRange, HouseholdItem } from '../../models';
-
+import { HouseholdItem } from '../../models';
 import { GenericTableComponent } from '../../../../shared/components/generic-table/generic-table.component';
-
-import type { TableColumn } from '../../../../shared/components/generic-table/generic-table.types';
-
+import type { TableColumn, TableSort } from '../../../../shared/components/generic-table/generic-table.types';
 import { Subscription } from 'rxjs';
-
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 
 @Component({
   selector: 'app-household-table',
-
   standalone: true,
-
   imports: [
     CommonModule,
     GenericTableComponent,
@@ -37,52 +30,50 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   ],
 
   templateUrl: './household-table.component.html',
-
   styleUrls: ['./household-table.component.scss'],
-
   changeDetection: ChangeDetectionStrategy.OnPush,
-
-  providers: [DatePipe],
 })
+
 export class HouseholdTableComponent implements OnDestroy {
   items = input<HouseholdItem[]>([]);
   maxDataCount = input<number>(0);
 
-  constructor(private datePipe: DatePipe) {}
+  // Outputs for event delegation
+  rowClick = output<HouseholdItem>();
+  scrollEnd = output<void>();
+  sortChange = output<TableSort<HouseholdItem> | null>();
+
+  constructor() {}
 
   // Store previous selection as regular variable
-
   private previousSelection: HouseholdItem[] = [];
 
   changedSubscription!: Subscription; // type of observable.subscribe return
 
   // Selection model as computed that preserves previous selection
-
   selectionModel = computed(() => {
     const currentItems = this.items();
 
     // Always return a SelectionModel instance
-
     if (currentItems.length === 0) {
       this.previousSelection = [];
+
       const model = new SelectionModel<HouseholdItem>(true);
-      model.compareWith = (a: HouseholdItem, b: HouseholdItem) => this.isSameItem(a, b);
+      model.compareWith = (a: HouseholdItem, b: HouseholdItem) => HouseholdItem.isSameItem(a, b);
       return model;
     }
 
     // Preserve selection from previous selection variable
-
     const itemsToSelect = this.previousSelection.filter((selectedItem: HouseholdItem) =>
-      currentItems.some((item: HouseholdItem) => this.isSameItem(item, selectedItem)),
+      currentItems.some((item: HouseholdItem) => HouseholdItem.isSameItem(item, selectedItem)),
     );
 
     // Create new SelectionModel with preserved selection
-
     const newModel = new SelectionModel<HouseholdItem>(true, itemsToSelect);
-    newModel.compareWith = (a: HouseholdItem, b: HouseholdItem) => this.isSameItem(a, b);
+
+    newModel.compareWith = (a: HouseholdItem, b: HouseholdItem) => HouseholdItem.isSameItem(a, b);
 
     // Subscribe to SelectionModel changes to update previousSelection
-
     this.clearSubscription();
 
     this.changedSubscription = newModel.changed.subscribe(() => {
@@ -92,19 +83,12 @@ export class HouseholdTableComponent implements OnDestroy {
     return newModel;
   });
 
-  // Helper to determine if items are the same using ID
-  private isSameItem(item1: HouseholdItem, item2: HouseholdItem): boolean {
-    // Use ID property for reliable comparison
-    return item1.id === item2.id;
-  }
-
   readonly columns = computed(() => {
     const columns: TableColumn<HouseholdItem>[] = [
       {
         key: 'name',
         label: 'Name',
         sortable: true,
-        filterable: true,
         columnClass: 'household-table__col--name',
         columnCellClass: 'household-table__cell--name',
       },
@@ -112,7 +96,6 @@ export class HouseholdTableComponent implements OnDestroy {
         key: 'type',
         label: 'Type',
         sortable: true,
-        filterable: true,
         columnClass: 'household-table__col--type',
         columnCellClass: 'household-table__cell--type',
       },
@@ -120,7 +103,6 @@ export class HouseholdTableComponent implements OnDestroy {
         key: 'quantity',
         label: 'Quantity',
         sortable: true,
-        filterable: false,
         columnClass: 'household-table__col--quantity',
         columnCellClass: 'household-table__cell--quantity',
       },
@@ -128,18 +110,19 @@ export class HouseholdTableComponent implements OnDestroy {
         key: 'collectionDate',
         label: 'Collection Date',
         sortable: true,
-        filterable: false,
         columnClass: 'household-table__col--date',
         columnCellClass: 'household-table__cell--date',
         formatter: (item: HouseholdItem) => HouseholdItem.formatDate(item),
       },
     ];
+
     return columns;
   });
 
   /**
    * Clears all current selections in the selection model
    */
+
   clearSubscription(): void {
     if (this.changedSubscription) {
       this.changedSubscription.unsubscribe();
@@ -150,5 +133,17 @@ export class HouseholdTableComponent implements OnDestroy {
 
   ngOnDestroy(): void {
     this.clearSubscription();
+  }
+
+  onScrollEnd(): void {
+    this.scrollEnd.emit();
+  }
+
+  onRowClick(item: HouseholdItem): void {
+    this.rowClick.emit(item);
+  }
+
+  onSortChange(sort: TableSort<HouseholdItem> | null): void {
+    this.sortChange.emit(sort);
   }
 }

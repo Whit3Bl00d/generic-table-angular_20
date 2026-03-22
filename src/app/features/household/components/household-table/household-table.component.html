@@ -1,4 +1,4 @@
-<app-generic-table 
+<app-generic-table
   [columns]="columns()"
   [data]="items()"
   [emptyTemplate]="emptyTemplate"
@@ -7,11 +7,14 @@
   [rowNumberLabel]="'#'"
   [selectionModel]="selectionModel()"
   [maxDataCount]="maxDataCount()"
-
+  (rowClick)="onRowClick($event)"
+  (scrollEnd)="onScrollEnd()"
+  (sortChange)="onSortChange($event)"
 >
   <ng-template #emptyTemplate>
     <div class="custom-empty-state">
       <h3>📦 No items in your inventory</h3>
+
       <p>Start by adding some furniture or general items to your household inventory.</p>
     </div>
   </ng-template>

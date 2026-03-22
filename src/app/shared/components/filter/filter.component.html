@@ -1,0 +1,25 @@
+<div class="filter">
+  @if (title()) {
+    <label>{{ title() }}:</label>
+  }
+
+  <mat-form-field appearance="outline" class="filter-field">
+    <input 
+      matInput 
+      [formControl]="control()"
+      [placeholder]="placeholder()"
+    />
+    
+    @if (showClearButton()) {
+      <button 
+        matSuffix 
+        aria-label="Clear filter" 
+        (click)="clearSearch()" 
+        class="clear-btn"
+        type="button"
+      >
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+  </mat-form-field>
+</div>

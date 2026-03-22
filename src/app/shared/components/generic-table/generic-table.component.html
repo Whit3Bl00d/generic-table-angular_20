@@ -1,31 +1,4 @@
 <div class="generic-table">
-  @if (showFilters() === true && filterableColumns().length > 0) {
-    <form class="filters" (reset)="clearFilters()">
-      <header class="filters__header">
-        <title class="filters__title">Filters</title>
-
-        <button type="reset" class="filters__clear" title="Clear all filters">
-          <mat-icon>clear</mat-icon>
-          <!-- TODO: Add Trash can component -->
-        </button>
-      </header>
-      <div class="filters__grid">
-        @for (column of filterableColumns(); track column.key) {
-          <div class="filter">
-            <label [attr.for]="'filter-' + column.key.toString()">{{ column.label }}:</label>
-
-            <input
-              [attr.id]="'filter-' + column.key.toString()"
-              type="text"
-              [placeholder]="'Filter by ' + column.label"
-              (input)="onFilterChange(column.key.toString(), $any($event).target.value)"
-            />
-          </div>
-        }
-      </div>
-    </form>
-  }
-
   @if (showSortShowcase() === true) {
     <section class="sort">
       <header>
@@ -76,11 +49,12 @@
                   [attr.aria-label]="'Select all items'"
                 />
               } @else {
-                <span>{{ column.label }}</span>
+                <label for="sort-{{ column.key }}">{{ column.label }}</label>
 
                 @if (showSort() === true && column.sortable && column.key !== 'rowNumber') {
                   <button
                     class="sort__header"
+                    id="sort-{{ column.key }}"
                     [class.active]="isSortedBy(column.key.toString())"
                     (click)="onSortChange(column.key.toString())"
                     [title]="'Sort by ' + column.label"
@@ -114,7 +88,7 @@
           </tr>
         }
 
-        @if (filteredAndSortedData().length === 0) {
+        @if (data().length === 0) {
           <tr class="table__row--empty">
             <td [attr.colspan]="displayColumns().length" class="table__cell--empty">
               @if (emptyTemplate()) {
@@ -126,8 +100,4 @@
       </tbody>
     </table>
   </section>
-
-  @if (showFilters() === true) {
-    <footer class="results">{{ displayData().length }} of {{ data().length }} items</footer>
-  }
 </div>

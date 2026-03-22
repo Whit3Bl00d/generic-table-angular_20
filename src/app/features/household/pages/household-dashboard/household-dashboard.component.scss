@@ -19,11 +19,20 @@
   margin: 1.5rem 0;
 }
 
-.search-section label {
+.filters {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: 500;
+  flex-wrap: wrap; // Allows wrapping on small screens
+  gap: 16px;      // Consistent spacing between filters
+  align-items: flex-end; // Aligns labels/inputs to the bottom
+  padding: 16px 0;
+  width: 100%;
+
+  // Make each filter take equal space, or a minimum width
+  filter {
+    flex: 1; 
+    min-width: 200px; // Prevents them from getting too skinny
+    max-width: 400px; // Prevents them from getting too wide on ultrawide screens
+  }
 }
 
 input {

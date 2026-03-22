@@ -27,6 +27,9 @@ export class HouseholdItem {
     this.type = type;
     this.collectionDate = collectionDate;
   }
+  static isSameItem(a: HouseholdItem, b: HouseholdItem): boolean {
+    return a.id === b.id;
+  }
 
   static formatDate(item: HouseholdItem): string {
     const datePipe = new DatePipe('en-US');

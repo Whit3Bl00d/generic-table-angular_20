@@ -1,0 +1,51 @@
+:host {
+  display: block; // Critical: allows the component to respect flex/width from parent
+  width: 100%;    // Takes full width of its allocated container
+}
+
+.filter {
+  display: flex;
+  flex-direction: column;
+  width: 100%; // Ensure container fills host
+  box-sizing: border-box;
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    color: var(--mat-sys-on-surface-variant, #5f6368);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .filter-field {
+    width: 100%;
+
+    ::ng-deep {
+      .mat-mdc-form-field-subscript-wrapper {
+        display: none;
+      }
+      
+      .mat-mdc-text-field-wrapper {
+        width: 100%;
+      }
+    }
+  }
+
+  .clear-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    min-width: 40px;
+    height: 40px;
+    color: var(--mat-sys-outline, #747775);
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

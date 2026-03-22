@@ -3,12 +3,11 @@ import {
   input,
   computed,
   signal,
-  Output,
-  EventEmitter,
-  ChangeDetectionStrategy,
-  TemplateRef,
+  output,
   effect,
   untracked,
+  ChangeDetectionStrategy,
+  TemplateRef,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -17,7 +16,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
-import type { TableColumn, TableFilter, TableSort } from './generic-table.types';
+import { SortDirection, type TableColumn, type TableSort } from './generic-table.types';
 
 @Component({
   selector: 'app-generic-table',
@@ -36,7 +35,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   data = input.required<T[]>();
   columns = input.required<TableColumn<T>[]>();
   emptyTemplate = input<TemplateRef<any> | undefined>(undefined);
-  showFilters = input<boolean>(true);
   showSort = input<boolean>(true);
   showSortShowcase = input<boolean>(false);
   showRowNumbers = input<boolean>(false);
@@ -45,22 +43,26 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   maxDataCount = input<number>(0);
 
   // Outputs
-  @Output() rowClick = new EventEmitter<T>();
-  @Output() scrollEnd = new EventEmitter<void>();
+  rowClick = output<T>();
+  scrollEnd = output<void>();
+  sortChange = output<TableSort<T> | null>();
 
   constructor() {
     effect(() => {
-    this.data(); // Track the data signal
-    
-    // Use untracked so we don't create a dependency on the boolean
-    untracked(() => {
-      this.isScrollLoading = false; 
+      this.data(); // Track the data signal
+
+      // Use untracked so we don't create a dependency on the boolean
+      untracked(() => {
+        this.isScrollLoading = false;
+      });
     });
-  });
+
+    effect(() => {
+      this.sortChange.emit(this.sortSignal());
+    });
   }
 
   // Private signals
-  private filterSignal = signal<TableFilter<T>[]>([]);
   private sortSignal = signal<TableSort<T> | null>(null);
 
   // Computed properties
@@ -68,51 +70,9 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     return this.data().length < this.maxDataCount();
   });
 
-  readonly filteredAndSortedData = computed(() => {
-    let data = [...this.data()];
-
-    // Apply filters
-    const activeFilters = this.filterSignal();
-
-    if (activeFilters.length > 0) {
-      data = data.filter((item) => {
-        return activeFilters.every((filter) => {
-          const value = item[filter.key as keyof T];
-
-          if (value === null || value === undefined) {
-            return false;
-          }
-
-          return String(value).toLowerCase().includes(filter.value.toLowerCase());
-        });
-      });
-    }
-
-    // Apply sorting
-    const activeSort = this.sortSignal();
-
-    if (activeSort) {
-      data.sort((a, b) => {
-        const aValue = a[activeSort.key as keyof T];
-
-        const bValue = b[activeSort.key as keyof T];
-
-        // Handle null/undefined values
-        if (aValue === null || aValue === undefined) return 1;
-        if (bValue === null || bValue === undefined) return -1;
-
-        if (aValue < bValue) return activeSort.direction === 'asc' ? -1 : 1;
-        if (aValue > bValue) return activeSort.direction === 'asc' ? 1 : -1;
-
-        return 0;
-      });
-    }
-
-    return data;
-  });
 
   readonly displayData = computed(() => {
-    const data = this.filteredAndSortedData();
+    const data = this.data();
 
     if (!this.showRowNumbers()) {
       return data;
@@ -135,7 +95,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
         key: 'checkbox',
         label: '',
         sortable: false,
-        filterable: false,
         columnClass: 'generic-table__col--checkbox',
         columnCellClass: 'generic-table__cell--checkbox',
       };
@@ -148,7 +107,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
         key: 'rowNumber',
         label: this.rowNumberLabel(),
         sortable: false,
-        filterable: false,
         columnClass: 'generic-table__col--row-number',
         columnCellClass: 'generic-table__cell--row-number',
       };
@@ -156,12 +114,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     }
 
     return result as TableColumn<T>[];
-  });
-
-  readonly filterableColumns = computed(() => {
-    return this.columns().filter(
-      (col: TableColumn<T>) => col.filterable && this.showFilters() !== false,
-    );
   });
 
   readonly sortableColumns = computed(() => {
@@ -199,46 +151,26 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     return { checked: false, indeterminate: true, disabled: false };
   });
 
-  // Event handlers
-  onFilterChange(key: string, value: string): void {
-    const currentFilters = this.filterSignal();
-    const existingIndex = currentFilters.findIndex((f) => f.key === key);
-
-    if (value.trim() === '') {
-      // Remove filter if empty
-      const newFilters =
-        existingIndex >= 0
-          ? currentFilters.slice(0, existingIndex).concat(currentFilters.slice(existingIndex + 1))
-          : currentFilters;
-
-      this.filterSignal.set(newFilters);
-    } else {
-      // Add or update filter
-      const newFilter = { key: key as keyof T, value: value.trim() };
-      const newFilters =
-        existingIndex >= 0
-          ? currentFilters
-              .slice(0, existingIndex)
-              .concat([newFilter])
-              .concat(currentFilters.slice(existingIndex + 1))
-          : [...currentFilters, newFilter];
-
-      this.filterSignal.set(newFilters);
-    }
-  }
-
   onSortChange(key: string): void {
     const currentSort = this.sortSignal();
     const keyAsKeyOf = key as keyof T;
 
     if (currentSort?.key === keyAsKeyOf) {
+      if (currentSort.direction === SortDirection.descending) {
+        this.sortSignal.set(null);
+        return;
+      }
+      
       // Toggle direction
-      const newDirection = currentSort.direction === 'asc' ? 'desc' : 'asc';
+      const newDirection =
+        currentSort.direction === SortDirection.ascending
+          ? SortDirection.descending
+          : SortDirection.ascending;
 
       this.sortSignal.set({ key: keyAsKeyOf, direction: newDirection });
     } else {
       // New sort column
-      this.sortSignal.set({ key: keyAsKeyOf, direction: 'asc' });
+      this.sortSignal.set({ key: keyAsKeyOf, direction: SortDirection.ascending });
     }
   }
 
@@ -316,10 +248,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     }
 
     return item[key as keyof T];
-  }
-
-  clearFilters(): void {
-    this.filterSignal.set([]);
   }
 
   clearSort(): void {

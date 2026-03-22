@@ -1,44 +1,83 @@
-import { Component, signal, computed, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, signal, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { ReactiveFormsModule, FormControl, FormGroup } from '@angular/forms';
+
+import { HouseholdItem } from '../../models';
+import { FilterComponent } from '../../../../shared/components/filter/filter.component';
+import type { TableSort } from '../../../../shared/components/generic-table/generic-table.types';
 import { HouseholdTableComponent } from '../../components/household-table/household-table.component';
 import { HouseholdFormComponent } from '../../components/household-form/household-form.component';
 import { FurnitureFormComponent } from '../../components/furniture-form/furniture-form.component';
-import type { HouseholdItem, ItemType } from '../../models';
-import { generateId } from '../../models';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { Subject } from 'rxjs';
 
-const SEARCH_DEBOUNCE_MS = 300;
 
 @Component({
   selector: 'app-household-dashboard',
   standalone: true,
-  imports: [CommonModule, HouseholdTableComponent, HouseholdFormComponent, FurnitureFormComponent],
+  imports: [
+    CommonModule,
+    HouseholdTableComponent,
+    HouseholdFormComponent,
+    FurnitureFormComponent,
+    FilterComponent,
+    ReactiveFormsModule,
+  ],
   templateUrl: './household-dashboard.component.html',
   styleUrls: ['./household-dashboard.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HouseholdDashboardComponent implements OnDestroy {
+export class HouseholdDashboardComponent {
   private itemsSignal = signal<HouseholdItem[]>([]);
   readonly maxDataCount = signal<number>(10);
 
-  private searchSubject = new Subject<string>();
-  readonly search = toSignal(
-    this.searchSubject.pipe(
-      debounceTime(SEARCH_DEBOUNCE_MS),
-      distinctUntilChanged()
-    ),
-    { initialValue: '' }
-  );
+  filters = new FormGroup({
+    name: new FormControl<string>(''),
+    type: new FormControl<string>(''),
+    quantity: new FormControl<string>('')
+  });
+
+  private sortSignal = signal<TableSort<HouseholdItem> | null>(null);
 
   private errorMessageSignal = signal<string | null>(null);
   readonly errorMessage = this.errorMessageSignal;
 
   readonly filteredItems = computed(() => {
-    const q = this.search().trim().toLowerCase();
-    if (!q) return this.itemsSignal();
-    return this.itemsSignal().filter((i) => i.name.toLowerCase().includes(q));
+    let items = this.itemsSignal();
+
+    // Apply name filter
+    const nameQ = this.filters.value.name?.trim().toLowerCase() || '';
+    const typeQ = this.filters.value.type?.trim().toLowerCase() || '';
+    const quantityQ = this.filters.value.quantity?.trim();
+    
+    if (nameQ) {
+      items = items.filter((i) => i.name.toLowerCase().includes(nameQ));
+    }
+    
+    if (typeQ) {
+      items = items.filter((i) => i.type.toLowerCase().includes(typeQ));
+    }
+    
+    if (quantityQ) {
+      items = items.filter((i) => i.quantity.toString().includes(quantityQ));
+    }
+
+    // Apply sorting
+    const activeSort = this.sortSignal();
+    if (activeSort) {
+      items.sort((a, b) => {
+        const aValue = a[activeSort.key as keyof HouseholdItem];
+        const bValue = b[activeSort.key as keyof HouseholdItem];
+
+        if (aValue === null || aValue === undefined) return 1;
+        if (bValue === null || bValue === undefined) return -1;
+
+        if (aValue < bValue) return activeSort.direction === 'asc' ? -1 : 1;
+        if (aValue > bValue) return activeSort.direction === 'asc' ? 1 : -1;
+
+        return 0;
+      });
+    }
+
+    return items;
   });
 
   addItem(data: HouseholdItem) {
@@ -51,13 +90,20 @@ export class HouseholdDashboardComponent implements OnDestroy {
     this.clearError();
   }
 
-  setSearch(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (!target) {
-      this.searchSubject.next('');
-      return;
-    }
-    this.searchSubject.next(target.value);
+  onNameChange(nameValue: string): void {
+    this.filters.patchValue({ name: nameValue });
+  }
+  
+  onTypeChange(typeValue: string): void {
+    this.filters.patchValue({ type: typeValue });
+  }
+  
+  onQuantityChange(quantityValue: string): void {
+    this.filters.patchValue({ quantity: quantityValue });
+  }
+
+  onSortChange(sort: TableSort<HouseholdItem> | null): void {
+    this.sortSignal.set(sort);
   }
 
   showError(message: string) {
@@ -67,9 +113,5 @@ export class HouseholdDashboardComponent implements OnDestroy {
 
   clearError() {
     this.errorMessageSignal.set(null);
-  }
-
-  ngOnDestroy() {
-    this.searchSubject.complete();
   }
 }
