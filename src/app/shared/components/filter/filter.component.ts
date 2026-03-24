@@ -61,7 +61,5 @@ export class FilterComponent {
 
   clearSearch(): void {
     this.control().setValue('');
-    // Instant emission for button click (bypassing debounce)
-    this.inputChange.emit('');
   }
 }
