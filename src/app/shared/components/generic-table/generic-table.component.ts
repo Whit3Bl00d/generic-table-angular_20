@@ -192,7 +192,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
 
     // Trigger select all state update with increment
     this.selectionUpdateTrigger.update((n) => n + 1);
-    console.log(model);
   }
 
   onSelectAll(checked: boolean): void {
@@ -203,7 +202,6 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     if (checked) {
       // Select all items in the dataset
       model.select(...displayData);
-      console.log(model);
     } else {
       // Clear all selections
       model.clear();

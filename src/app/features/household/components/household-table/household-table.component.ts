@@ -192,7 +192,6 @@ export class HouseholdTableComponent implements OnDestroy {
   }
 
   onRowClick(item: HouseholdItem): void {
-    console.log('Row clicked:', item);
   }
 
   onSortChange(sort: SortParams<HouseholdItem> | undefined): void {
