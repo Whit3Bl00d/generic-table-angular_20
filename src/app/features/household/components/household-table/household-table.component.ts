@@ -1,18 +1,23 @@
 import {
   Component,
-  input,
   computed,
   signal,
   ChangeDetectionStrategy,
   OnDestroy,
-  output,
+  input,
+  effect,
+  linkedSignal,
+  inject,
 } from '@angular/core';
+import { rxResource } from '@angular/core/rxjs-interop';
 
 import { CommonModule } from '@angular/common';
 import { SelectionModel } from '@angular/cdk/collections';
 import { HouseholdItem } from '../../models';
+import { HouseholdItemInterface } from '../../types';
+import { HouseholdService, GetDataResult, SortParams, FilterCriterion } from '../../services';
 import { GenericTableComponent } from '../../../../shared/components/generic-table/generic-table.component';
-import type { TableColumn, TableSort } from '../../../../shared/components/generic-table/generic-table.types';
+import type { TableColumn } from '../../../../shared/components/generic-table/generic-table.types';
 import { Subscription } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -33,17 +38,63 @@ import { MatFormFieldModule } from '@angular/material/form-field';
   styleUrls: ['./household-table.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-
 export class HouseholdTableComponent implements OnDestroy {
-  items = input<HouseholdItem[]>([]);
-  maxDataCount = input<number>(0);
+  static readonly INFINITE_SCROLL_CHUNK_SIZE = 20;
 
-  // Outputs for event delegation
-  rowClick = output<HouseholdItem>();
-  scrollEnd = output<void>();
-  sortChange = output<TableSort<HouseholdItem> | null>();
+  private _householdService = inject(HouseholdService);
 
-  constructor() {}
+  readonly filters = input<FilterCriterion<HouseholdItemInterface>[]>([]);
+  private currentSort = signal<SortParams<HouseholdItem> | undefined>(undefined);
+
+  private isLoading = signal(false);
+
+  /** Tracks currentBatch; resets to 0 when filters or sort change */
+  private readonly currentBatch = linkedSignal({
+    source: () => ({ f: this.filters(), s: this.currentSort() }),
+    computation: () => 0,
+  });
+
+  /** Managed resource for data fetching; reacts to batch, filter, and sort changes */
+  readonly itemsResource = rxResource<
+    GetDataResult,
+    {
+      currentBatch: number;
+      sort: SortParams<HouseholdItem> | undefined;
+      filters: FilterCriterion<HouseholdItemInterface>[];
+    }
+  >({
+    params: () => ({
+      currentBatch: this.currentBatch(),
+      filters: this.filters(),
+      sort: this.currentSort(),
+    }),
+    stream: ({ params }) =>
+      this._householdService.getData(20, params.currentBatch, params.filters, params.sort),
+  });
+
+  /**
+   * Accumulated items list.
+   * Prevents UI flickering by retaining previous values during resource loading.
+   * Resets list on fresh batch (0) and appends on subsequent batches.
+   */
+  readonly items = linkedSignal<{ result: GetDataResult | undefined; batch: number }, HouseholdItem[]>({
+    source: () => ({
+      result: this.itemsResource.value(),
+      batch: this.currentBatch(),
+    }),
+    computation: (newVal, previous) => {
+      const { result, batch } = newVal;
+      const prevItems = previous?.value ?? [];
+
+      if (!result) return prevItems;
+
+      if (batch === 0) return result.items;
+
+      return [...prevItems, ...result.items];
+    },
+  });
+
+  readonly maxDataCount = computed(() => this.itemsResource.value()?.totalCount ?? 0);
 
   // Store previous selection as regular variable
   private previousSelection: HouseholdItem[] = [];
@@ -131,19 +182,24 @@ export class HouseholdTableComponent implements OnDestroy {
 
   // Implement ngOnDestroy to clean up subscription
 
-  ngOnDestroy(): void {
-    this.clearSubscription();
-  }
-
   onScrollEnd(): void {
-    this.scrollEnd.emit();
+    // Prevent duplicate requests
+    if (this.isLoading() || this.currentBatch() >= this.maxDataCount()) {
+      return;
+    }
+
+    this.currentBatch.set(this.currentBatch() + HouseholdTableComponent.INFINITE_SCROLL_CHUNK_SIZE);
   }
 
   onRowClick(item: HouseholdItem): void {
-    this.rowClick.emit(item);
+    console.log('Row clicked:', item);
   }
 
-  onSortChange(sort: TableSort<HouseholdItem> | null): void {
-    this.sortChange.emit(sort);
+  onSortChange(sort: SortParams<HouseholdItem> | undefined): void {
+    this.currentSort.set(sort);
+  }
+
+  ngOnDestroy(): void {
+    this.clearSubscription();
   }
 }

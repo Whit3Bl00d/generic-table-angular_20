@@ -1,4 +1,5 @@
 import { TemplateRef } from '@angular/core';
+import { SortDirection } from '../../types/shared.types';
 
 export interface TableColumn<T> {
   key: keyof T;
@@ -7,14 +8,4 @@ export interface TableColumn<T> {
   columnClass?: string;
   columnCellClass?: string;
   formatter?: (item: T) => string;
-}
-
-export interface TableSort<T> {
-  key: keyof T;
-  direction: SortDirection;
-}
-
-export enum SortDirection {
-  ascending = 'asc',
-  descending = 'desc',
 }

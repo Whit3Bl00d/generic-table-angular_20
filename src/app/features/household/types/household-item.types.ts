@@ -1,12 +1,8 @@
 import { DatePipe } from '@angular/common';
+import { DateRange } from '../../../shared/types/shared.types';
 
 // Core domain types
 export type ItemType = 'general' | 'furniture';
-
-export type DateRange = {
-  start: Date;
-  end: Date;
-};
 
 // Interface for household items (without methods)
 export interface HouseholdItemInterface {

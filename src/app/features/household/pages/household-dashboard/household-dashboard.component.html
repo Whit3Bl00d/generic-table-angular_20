@@ -1,36 +1,29 @@
 <section class="household-dashboard">
   <h1>Household Inventory</h1>
 
-  @if (errorMessage()) {
-    <div class="error-message" role="alert">
-      {{ errorMessage() }}
-      <button (click)="clearError()" class="close-error" aria-label="Close error">&times;</button>
-    </div>
-  }
-
     <section class="filters">
       <filter
         title="Search"
         placeholder="Search by name..."
-        [debounce]="30"
+        [debounce]="300"
         [control]="filters.controls.name"
-        (inputChange)="onNameChange($event)">
+        (inputChange)="name.set($event)">
       </filter>
       
       <filter
         title="Type"
         placeholder="Filter by type..."
-        [debounce]="30"
+        [debounce]="300"
         [control]="filters.controls.type"
-        (inputChange)="onTypeChange($event)">
+        (inputChange)="type.set($event)">
       </filter>
       
       <filter
         title="Quantity"
         placeholder="Filter by quantity..."
-        [debounce]="30"
+        [debounce]="300"
         [control]="filters.controls.quantity"
-        (inputChange)="onQuantityChange($event)">
+        (inputChange)="quantity.set($event)">
       </filter>
     </section>
 
@@ -40,29 +33,20 @@
       <div class="household">
         <h3>Add Item</h3>
         
-        <app-household-form
-        (addItem)="addItem($event)"
-        (error)="showError($event)"
-        ></app-household-form>
+        <app-household-form></app-household-form>
       </div>
       
       <div class="table">
         <h3>Inventory</h3>
         
-        <app-household-table 
-  [items]="filteredItems()" 
-  [maxDataCount]="maxDataCount()"
-  (sortChange)="onSortChange($event)"></app-household-table>
+        <app-household-table [filters]="filterParams()"></app-household-table>
       </div>
     </div>
       
     <div class="furniture">
       <h3>Add Furniture</h3>
 
-      <app-furniture-form
-        (addFurniture)="addFurniture($event)"
-        (error)="showError($event)"
-      ></app-furniture-form>
+      <app-furniture-form></app-furniture-form>
     </div>
   </div>
 </section>

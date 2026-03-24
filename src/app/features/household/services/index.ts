@@ -5,10 +5,10 @@ export type {
   GetDataResult,
   CreateItemRequest,
   SortParams, 
-  FilterParams,
+  FilterCriterion,
   ItemType,
   DateRange,
   HouseholdItem,
   HouseholdItemInterface
 } from '../types';
-export { SortDirection } from '../types';
+export { SortDirection, ODataOperator } from '../types';

@@ -1,7 +1,6 @@
-import { Component, EventEmitter, Output, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
+import { Component, ChangeDetectionStrategy, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { FURNITURE_TYPES, type FurnitureType } from '../../models';
 import { Subscription } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
@@ -9,11 +8,17 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { provideNativeDateAdapter } from '@angular/material/core';
-import { HouseholdItem, generateId } from '../../models';
+import { HouseholdService, CreateItemRequest } from '../../services';
 
 const DEFAULT_COUNT = 1;
 const MIN_COUNT = 1;
 const MAX_COUNT = 99;
+
+const FURNITURE_TYPES = [
+  'Chair', 'Table', 'Sofa', 'Bed', 'Wardrobe', 'Desk',
+  'Bookshelf', 'Cabinet', 'Dresser', 'Nightstand',
+  'Coffee Table', 'TV Stand', 'Ottoman', 'Bench', 'Recliner'
+] as const;
 
 @Component({
   selector: 'app-furniture-form',
@@ -33,45 +38,46 @@ const MAX_COUNT = 99;
   providers: [provideNativeDateAdapter()],
 })
 export class FurnitureFormComponent implements OnDestroy {
-  @Output() addFurniture = new EventEmitter<HouseholdItem>();
-  @Output() error = new EventEmitter<string>();
-
   readonly furnitureTypes = FURNITURE_TYPES;
   form: FormGroup;
   private valueChangesSubscription: Subscription | undefined;
 
-  constructor(private fb: FormBuilder) {
+  constructor(private fb: FormBuilder, private householdService: HouseholdService) {
     this.form = this.fb.group({
-      id: [generateId()],
       name: ['', Validators.required],
       quantity: [DEFAULT_COUNT, [Validators.required, Validators.min(MIN_COUNT), Validators.max(MAX_COUNT)]],
       type: ['furniture'],
-      collectionDate: [null]  // Use collectionDate from HouseholdItem class
+      collectionDate: [null]
     });
 
     // Watch for value changes
     this.valueChangesSubscription = this.form.valueChanges.subscribe(() => {
       // Clear any existing errors when form values change
-      this.error.emit('');
     });
   }
 
   onSubmit() {
     if (this.form.valid) {
       const formValues = this.form.value;
-      const householdItem = new HouseholdItem(
-        formValues.id || generateId(),
-        formValues.name || '',
-        formValues.quantity || DEFAULT_COUNT,
-        formValues.type || 'furniture',
-        formValues.collectionDate || undefined
-      );
-      this.addFurniture.emit(householdItem);
-      this.form.reset();
-      this.form.patchValue({ 
-        id: generateId(),
-        type: 'furniture',
-        quantity: DEFAULT_COUNT 
+      
+      const createRequest: CreateItemRequest = {
+        name: formValues.name || '',
+        quantity: formValues.quantity || DEFAULT_COUNT,
+        type: formValues.type || 'furniture',
+        collectionDate: formValues.collectionDate || undefined
+      };
+
+      this.householdService.addItem(createRequest).subscribe({
+        next: () => {
+          this.form.reset();
+          this.form.patchValue({ 
+            type: 'furniture',
+            quantity: DEFAULT_COUNT 
+          });
+        },
+        error: (error) => {
+          console.error('Failed to add furniture:', error);
+        }
       });
     }
   }

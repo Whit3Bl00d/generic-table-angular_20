@@ -16,7 +16,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
-import { SortDirection, type TableColumn, type TableSort } from './generic-table.types';
+import { TableColumn } from './generic-table.types';
+import { SortDirection, SortParams } from '../../types/shared.types';
 
 @Component({
   selector: 'app-generic-table',
@@ -45,7 +46,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   // Outputs
   rowClick = output<T>();
   scrollEnd = output<void>();
-  sortChange = output<TableSort<T> | null>();
+  sortChange = output<SortParams<T> | undefined>();
 
   constructor() {
     effect(() => {
@@ -63,7 +64,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   }
 
   // Private signals
-  private sortSignal = signal<TableSort<T> | null>(null);
+  private sortSignal = signal<SortParams<T> | undefined>(undefined);
 
   // Computed properties
   readonly hasMoreData = computed(() => {
@@ -157,7 +158,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
 
     if (currentSort?.key === keyAsKeyOf) {
       if (currentSort.direction === SortDirection.descending) {
-        this.sortSignal.set(null);
+        this.sortSignal.set(undefined);
         return;
       }
       
@@ -251,7 +252,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   }
 
   clearSort(): void {
-    this.sortSignal.set(null);
+    this.sortSignal.set(undefined);
   }
 
   onScroll(event: Event): void {

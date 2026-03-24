@@ -1,5 +1,5 @@
-import { ItemType, DateRange, HouseholdItemInterface } from './household-item.types';
-import { SortDirection } from '../../../shared/components/generic-table/generic-table.types';
+import { ItemType, HouseholdItemInterface } from './household-item.types';
+import { SortDirection, SortParams, FilterCriterion, ODataOperator, DateRange } from '../../../shared/types/shared.types';
 
 // Request/Response types for API operations
 export interface CreateItemRequest {
@@ -7,20 +7,6 @@ export interface CreateItemRequest {
   quantity: number;
   type: ItemType;
   collectionDate?: Date | DateRange;
-}
-
-// Query and filtering types
-export interface SortParams {
-  key: keyof HouseholdItemInterface;
-  direction: SortDirection;
-}
-
-export interface FilterParams {
-  name?: string;
-  type?: ItemType;
-  quantity?: number;
-  minQuantity?: number;
-  maxQuantity?: number;
 }
 
 // Data retrieval result type
