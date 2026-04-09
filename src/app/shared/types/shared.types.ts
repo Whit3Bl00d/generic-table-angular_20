@@ -44,4 +44,8 @@ export interface FilterCriterion<T> {
   operator: ODataOperator;
 }
 
+export interface TableCellContext<T = any> {
+  $implicit: T;      // The row data (item)
+  column: any;       // Your column configuration
+}
 

@@ -9,57 +9,7 @@ import { SortDirection, ODataOperator } from '../types';
 })
 export class HouseholdService {
   // Data storage
-  private allItems = signal<HouseholdItemInterface[]>([
-    new HouseholdItem('1', 'Dining Table', 1, 'furniture', new Date('2023-01-15')),
-    new HouseholdItem('2', 'Kitchen Chair', 4, 'furniture', new Date('2023-01-20')),
-    new HouseholdItem('3', 'Sofa', 1, 'furniture', new Date('2023-02-10')),
-    new HouseholdItem('4', 'Bed', 2, 'furniture', new Date('2023-02-15')),
-    new HouseholdItem('5', 'Wardrobe', 1, 'furniture', new Date('2023-03-01')),
-    new HouseholdItem('6', 'Desk', 1, 'furniture', new Date('2023-03-10')),
-    new HouseholdItem('7', 'Bookshelf', 2, 'furniture', new Date('2023-03-15')),
-    new HouseholdItem('8', 'TV Stand', 1, 'furniture', new Date('2023-04-01')),
-    new HouseholdItem('9', 'Coffee Table', 1, 'furniture', new Date('2023-04-05')),
-    new HouseholdItem('10', 'Nightstand', 2, 'furniture', new Date('2023-04-10')),
-    new HouseholdItem('11', 'Dresser', 1, 'furniture', new Date('2023-04-15')),
-    new HouseholdItem('12', 'Ottoman', 1, 'furniture', new Date('2023-05-01')),
-    new HouseholdItem('13', 'Bench', 1, 'furniture', new Date('2023-05-05')),
-    new HouseholdItem('14', 'Recliner', 1, 'furniture', new Date('2023-05-10')),
-    new HouseholdItem('15', 'Cabinet', 3, 'furniture', new Date('2023-05-15')),
-    new HouseholdItem('16', 'Laptop', 2, 'general', new Date('2023-06-01')),
-    new HouseholdItem('17', 'Smartphone', 3, 'general', new Date('2023-06-05')),
-    new HouseholdItem('18', 'Tablet', 1, 'general', new Date('2023-06-10')),
-    new HouseholdItem('19', 'Headphones', 2, 'general', new Date('2023-06-15')),
-    new HouseholdItem('20', 'Keyboard', 3, 'general', new Date('2023-07-01')),
-    new HouseholdItem('21', 'Mouse', 4, 'general', new Date('2023-07-05')),
-    new HouseholdItem('22', 'Monitor', 2, 'general', new Date('2023-07-10')),
-    new HouseholdItem('23', 'Printer', 1, 'general', new Date('2023-07-15')),
-    new HouseholdItem('24', 'Router', 1, 'general', new Date('2023-08-01')),
-    new HouseholdItem('25', 'External Hard Drive', 2, 'general', new Date('2023-08-05')),
-    new HouseholdItem('26', 'Winter Clothes', 15, 'general', {
-      start: new Date('2023-11-01'),
-      end: new Date('2024-03-31'),
-    }),
-    new HouseholdItem('27', 'Summer Clothes', 20, 'general', {
-      start: new Date('2023-05-01'),
-      end: new Date('2023-09-30'),
-    }),
-    new HouseholdItem('28', 'Holiday Decorations', 10, 'general', {
-      start: new Date('2023-12-01'),
-      end: new Date('2024-01-15'),
-    }),
-    new HouseholdItem('29', 'Gaming Console', 1, 'general', new Date('2023-08-10')),
-    new HouseholdItem('30', 'Camera', 2, 'general', new Date('2023-08-15')),
-    new HouseholdItem('31', 'Speakers', 3, 'general', new Date('2023-09-01')),
-    new HouseholdItem('32', 'Desk Lamp', 2, 'furniture', new Date('2023-09-05')),
-    new HouseholdItem('33', 'Office Chair', 1, 'furniture', new Date('2023-09-10')),
-    new HouseholdItem('34', 'Coffee Maker', 1, 'general', new Date('2023-09-15')),
-    new HouseholdItem('35', 'Microwave', 1, 'general', new Date('2023-10-01')),
-    new HouseholdItem('36', 'Toaster', 1, 'general', new Date('2023-10-05')),
-    new HouseholdItem('37', 'Blender', 1, 'general', new Date('2023-10-10')),
-    new HouseholdItem('38', 'Vacuum Cleaner', 1, 'general', new Date('2023-10-15')),
-    new HouseholdItem('39', 'Air Purifier', 2, 'general', new Date('2023-11-01')),
-    new HouseholdItem('40', 'Space Heater', 1, 'general', new Date('2023-11-05')),
-  ]);
+  private allItems = signal<HouseholdItemInterface[]>([]);
   private loading = signal(false);
 
   public readonly loadingComputed = computed(() => this.loading());
@@ -237,7 +187,7 @@ export class HouseholdService {
       new HouseholdItem('13', 'Bench', 1, 'furniture', new Date('2023-05-05')),
       new HouseholdItem('14', 'Recliner', 1, 'furniture', new Date('2023-05-10')),
       new HouseholdItem('15', 'Cabinet', 3, 'furniture', new Date('2023-05-15')),
-      ...Array.from({ length: 200 }, (_, i) => 
+      ...Array.from({ length: 2600 }, (_, i) => 
         new HouseholdItem(
           (16 + i).toString(),
           `mock-item-${16 + i}`,

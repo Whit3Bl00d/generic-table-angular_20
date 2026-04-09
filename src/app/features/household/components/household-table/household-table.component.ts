@@ -18,10 +18,12 @@ import { HouseholdItemInterface } from '../../types';
 import { HouseholdService, GetDataResult, SortParams, FilterCriterion } from '../../services';
 import { GenericTableComponent } from '../../../../shared/components/generic-table/generic-table.component';
 import type { TableColumn } from '../../../../shared/components/generic-table/generic-table.types';
+import { ColumnTypes, TablecolumnBuilder } from '../../../../shared/components/generic-table/generic-table.types';
 import { Subscription } from 'rxjs';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { GenericCellTemplateDirective } from '../../../../shared/directives/generic-cell-template.directive';
 
 @Component({
   selector: 'app-household-table',
@@ -32,6 +34,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatDatepickerModule,
     MatInputModule,
     MatFormFieldModule,
+    GenericCellTemplateDirective,
   ],
 
   templateUrl: './household-table.component.html',
@@ -43,6 +46,8 @@ export class HouseholdTableComponent implements OnDestroy {
 
   private _householdService = inject(HouseholdService);
 
+  readonly ColumnTypes = ColumnTypes;
+  
   readonly filters = input<FilterCriterion<HouseholdItemInterface>[]>([]);
   private currentSort = signal<SortParams<HouseholdItem> | undefined>(undefined);
 
@@ -77,7 +82,10 @@ export class HouseholdTableComponent implements OnDestroy {
    * Prevents UI flickering by retaining previous values during resource loading.
    * Resets list on fresh batch (0) and appends on subsequent batches.
    */
-  readonly items = linkedSignal<{ result: GetDataResult | undefined; batch: number }, HouseholdItem[]>({
+  readonly items = linkedSignal<
+    { result: GetDataResult | undefined; batch: number },
+    HouseholdItem[]
+  >({
     source: () => ({
       result: this.itemsResource.value(),
       batch: this.currentBatch(),
@@ -133,38 +141,82 @@ export class HouseholdTableComponent implements OnDestroy {
 
     return newModel;
   });
+  
+  readonly customTemplate = new TablecolumnBuilder<HouseholdItem>({
+    id: 'stupid-template',
+    columnType: {
+      type: ColumnTypes.CUSTOM,
+      key: 'quantity',
+      templateName: 'custom-template',
+    },
+    label: 'template',
+    sortable: true,
+    columnClass: 'household-table__col--quantity',
+    columnCellClass: 'household-table__cell--quantity',
+  });
 
   readonly columns = computed(() => {
     const columns: TableColumn<HouseholdItem>[] = [
       {
-        key: 'name',
+        id: 'name',
+        columnType: {
+          type: ColumnTypes.TEXT,
+          key: 'name',
+        },
         label: 'Name',
         sortable: true,
         columnClass: 'household-table__col--name',
         columnCellClass: 'household-table__cell--name',
       },
       {
-        key: 'type',
+        id: 'type',
+        columnType: {
+          type: ColumnTypes.TEXT,
+          key: 'type',
+        },
         label: 'Type',
         sortable: true,
         columnClass: 'household-table__col--type',
         columnCellClass: 'household-table__cell--type',
       },
       {
-        key: 'quantity',
+        id: 'quantity',
+        columnType: {
+          type: ColumnTypes.TEXT,
+          key: 'quantity',
+        },
         label: 'Quantity',
         sortable: true,
         columnClass: 'household-table__col--quantity',
         columnCellClass: 'household-table__cell--quantity',
       },
       {
-        key: 'collectionDate',
+        id: 'stupid-checkbox',
+        columnType: {
+          type: ColumnTypes.CHECKBOX,
+          selectionModel: this.selectionModel(),
+        },
+        label: 'stupid',
+        sortable: true,
+        columnClass: 'household-table__col--quantity',
+        columnCellClass: 'household-table__cell--quantity',
+      },
+      {
+        id: 'collectionDate',
+        columnType: {
+          type: ColumnTypes.DATE,
+          key: 'collectionDate',
+          formatter: (item: HouseholdItem) => HouseholdItem.formatDate(item),
+        },
         label: 'Collection Date',
         sortable: true,
         columnClass: 'household-table__col--date',
         columnCellClass: 'household-table__cell--date',
-        formatter: (item: HouseholdItem) => HouseholdItem.formatDate(item),
       },
+      this.customTemplate,
+      this.customTemplate.copy('custom-template-2', { 
+        newLabel: 'Custom Template 2',
+      }),
     ];
 
     return columns;
@@ -191,8 +243,7 @@ export class HouseholdTableComponent implements OnDestroy {
     this.currentBatch.set(this.currentBatch() + HouseholdTableComponent.INFINITE_SCROLL_CHUNK_SIZE);
   }
 
-  onRowClick(item: HouseholdItem): void {
-  }
+  onRowClick(item: HouseholdItem): void {}
 
   onSortChange(sort: SortParams<HouseholdItem> | undefined): void {
     this.currentSort.set(sort);

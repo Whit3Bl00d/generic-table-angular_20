@@ -8,6 +8,7 @@ import {
   untracked,
   ChangeDetectionStrategy,
   TemplateRef,
+  contentChildren,
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -16,8 +17,9 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
-import { TableColumn } from './generic-table.types';
+import { TableColumn, ColumnTypes } from './generic-table.types';
 import { SortDirection, SortParams } from '../../types/shared.types';
+import { GenericCellTemplateDirective } from '../../directives/generic-cell-template.directive';
 
 @Component({
   selector: 'app-generic-table',
@@ -31,6 +33,7 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   // Constants
   private readonly SCROLL_THRESHOLD = 50; // Distance from bottom in pixels
   private isScrollLoading = false;
+  ColumnTypes = ColumnTypes;
 
   // Inputs
   data = input.required<T[]>();
@@ -66,11 +69,12 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
   // Private signals
   private sortSignal = signal<SortParams<T> | undefined>(undefined);
 
+  private readonly templateRefs = contentChildren(GenericCellTemplateDirective);
+
   // Computed properties
   readonly hasMoreData = computed(() => {
     return this.data().length < this.maxDataCount();
   });
-
 
   readonly displayData = computed(() => {
     const data = this.data();
@@ -89,27 +93,34 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     const columns = this.columns();
     const result: TableColumn<any>[] = [...columns];
 
-    // Add checkbox column first if selection model is provided
-    // This ensures checkboxes appear as the leftmost column
+    // Add checkbox column at start if selection model is provided via input
+    // This ensures checkboxes appear as leftmost column regardless of existing columns
     if (this.selectionModel()) {
-      const checkboxColumn: TableColumn<any> = {
-        key: 'checkbox',
+      const inputCheckboxColumn: TableColumn<any> = {
+        id: 'generic-checkbox',
         label: '',
         sortable: false,
         columnClass: 'generic-table__col--checkbox',
         columnCellClass: 'generic-table__cell--checkbox',
+        columnType: {
+          type: ColumnTypes.CHECKBOX,
+          selectionModel: this.selectionModel()!
+        }
       };
-      result.unshift(checkboxColumn);
+      result.unshift(inputCheckboxColumn);
     }
 
     // Add row number column if enabled
     if (this.showRowNumbers()) {
       const rowNumberColumn: TableColumn<any> = {
-        key: 'rowNumber',
+        id: 'generic-rowNumber',
         label: this.rowNumberLabel(),
         sortable: false,
         columnClass: 'generic-table__col--row-number',
         columnCellClass: 'generic-table__cell--row-number',
+        columnType: {
+          type: ColumnTypes.ROW_NUMBERS
+        }
       };
       result.unshift(rowNumberColumn);
     }
@@ -179,8 +190,10 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     this.rowClick.emit(item);
   }
 
-  onCheckboxChange(item: T, checked: boolean): void {
-    const model = this.selectionModel();
+  onCheckboxChange(item: T, checked: boolean, column: TableColumn<any>): void {
+    if (column.columnType.type !== ColumnTypes.CHECKBOX) return;
+    
+    const model = column.columnType.selectionModel;
     if (!model) return;
 
     // Toggle selection state based on checkbox
@@ -194,13 +207,15 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     this.selectionUpdateTrigger.update((n) => n + 1);
   }
 
-  onSelectAll(checked: boolean): void {
-    const model = this.selectionModel();
+  onSelectAll(checked: boolean, column: TableColumn<any>): void {
+    if (column.columnType.type !== ColumnTypes.CHECKBOX) return;
+    
+    const model = column.columnType.selectionModel;
     if (!model) return;
 
     const displayData = this.displayData();
     if (checked) {
-      // Select all items in the dataset
+      // Select all items in dataset
       model.select(...displayData);
     } else {
       // Clear all selections
@@ -211,8 +226,10 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     this.selectionUpdateTrigger.update((n) => n + 1);
   }
 
-  isItemSelected(item: T): boolean {
-    const model = this.selectionModel();
+  isItemSelected(item: T, column: TableColumn<any>): boolean {
+    if (column.columnType.type !== ColumnTypes.CHECKBOX) return false;
+    
+    const model = column.columnType.selectionModel;
     // Return false if no model, otherwise check selection
     return model ? model.isSelected(item) : false;
   }
@@ -231,22 +248,25 @@ export class GenericTableComponent<T extends Record<string | number, any>> {
     return this.sortSignal()?.key === keyAsKeyOf;
   }
 
-  getDisplayValue(item: any, key: keyof T | 'rowNumber' | 'checkbox'): any {
-    if (key === 'checkbox') {
-      return this.isItemSelected(item);
-    }
+  getTemplate(name?: string) {
+    return this.templateRefs().find(t => t.name === name)?.template;
+  }
 
-    if (key === 'rowNumber') {
-      return item.rowNumber;
+  getDisplayValue(item: any, column: TableColumn<any>): any {
+    // Handle different column types
+    switch (column.columnType.type) {
+      case ColumnTypes.TEXT:
+      case ColumnTypes.DATE:
+        // Use formatter if available
+        if ('formatter' in column.columnType && column.columnType.formatter) {
+          return column.columnType.formatter(item);
+        }
+        return item[column.columnType.key];
+        
+      case ColumnTypes.CUSTOM:
+        // For custom columns, template handles rendering
+        return item[column.columnType.key];
     }
-
-    // Check if column has a formatter
-    const column = this.displayColumns().find((col) => col.key === key);
-    if (column?.formatter) {
-      return column.formatter(item);
-    }
-
-    return item[key as keyof T];
   }
 
   clearSort(): void {

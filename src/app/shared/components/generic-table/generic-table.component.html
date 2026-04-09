@@ -11,19 +11,21 @@
       </header>
 
       <div class="sort__controls">
-        @for (column of sortableColumns(); track column.key) {
-          <button
-            class="sort__btn"
-            [class.active]="isSortedBy(column.key.toString())"
-            (click)="onSortChange(column.key.toString())"
-            [title]="'Sort by ' + column.label"
-          >
-            {{ column.label }}
+        @for (column of sortableColumns(); track column.id) {
+          @if (column.columnType.type === ColumnTypes.TEXT && column.columnType.key) {
+            <button
+              class="sort__btn"
+              [class.active]="isSortedBy(column.columnType.key.toString())"
+              (click)="onSortChange(column.columnType.key.toString())"
+              [title]="'Sort by ' + column.label"
+            >
+              {{ column.label }}
 
-            <span class="sort__icon">
-              <mat-icon>{{ getSortIcon(column.key.toString()) }}</mat-icon>
-            </span>
-          </button>
+              <span class="sort__icon">
+                <mat-icon>{{ getSortIcon(column.columnType.key.toString()) }}</mat-icon>
+              </span>
+            </button>
+          }
         }
       </div>
     </section>
@@ -32,35 +34,49 @@
   <section class="table-container" (scroll)="onScroll($event)">
     <table class="table">
       <colgroup>
-        @for (column of displayColumns(); track column.key) {
+        @for (column of displayColumns(); track column.id) {
           <col [class]="column.columnClass" class="generic-table__col" />
         }
       </colgroup>
       <thead class="table__header">
         <tr class="table__header__row">
-          @for (column of displayColumns(); track column.key) {
+          @for (column of displayColumns(); track column.id) {
             <th class="table__header__cell" [class]="column.columnCellClass">
-              @if (column.key === 'checkbox') {
-                <mat-checkbox
-                  [checked]="selectAllState().checked"
-                  [indeterminate]="selectAllState().indeterminate"
-                  [disabled]="selectAllState().disabled"
-                  (change)="onSelectAll($event.checked)"
-                  [attr.aria-label]="'Select all items'"
-                />
-              } @else {
-                <label for="sort-{{ column.key }}">{{ column.label }}</label>
+              @switch (column.columnType.type) {
+                @case ('checkbox') {
+                  <label>{{ column.label }}</label>
+                  <mat-checkbox
+                    [checked]="selectAllState().checked"
+                    [indeterminate]="selectAllState().indeterminate"
+                    [disabled]="selectAllState().disabled"
+                    (change)="onSelectAll($event.checked, column)"
+                    [attr.aria-label]="'Select all items'"
+                  />
+                }
+                @case ('rowNumbers') {
+                  <label>{{ column.label }}</label>
+                }
+                @case ('custom') {
+                  <label>{{ column.label }}</label>
+                }
+                @default {
+                  <label>{{ column.label }}</label>
 
-                @if (showSort() === true && column.sortable && column.key !== 'rowNumber') {
-                  <button
-                    class="sort__header"
-                    id="sort-{{ column.key }}"
-                    [class.active]="isSortedBy(column.key.toString())"
-                    (click)="onSortChange(column.key.toString())"
-                    [title]="'Sort by ' + column.label"
-                  >
-                    <mat-icon>{{ getSortIcon(column.key.toString()) }}</mat-icon>
-                  </button>
+                  @if (
+                    showSort() === true &&
+                    column.sortable &&
+                    column.columnType.type === ColumnTypes.TEXT
+                  ) {
+                    <button
+                      class="sort__header"
+                      id="sort-{{ column.columnType.key }}"
+                      [class.active]="isSortedBy(column.columnType.key.toString())"
+                      (click)="onSortChange(column.columnType.key.toString())"
+                      [title]="'Sort by ' + column.label"
+                    >
+                      <mat-icon>{{ getSortIcon(column.columnType.key.toString()) }}</mat-icon>
+                    </button>
+                  }
                 }
               }
             </th>
@@ -69,19 +85,32 @@
       </thead>
 
       <tbody class="table__body">
-        @for (item of displayData(); track $index) {
+        @for (item of displayData(); let i = $index; track $index) {
           <tr (click)="onRowClick(item)" class="table__row">
-            @for (column of displayColumns(); track column.key) {
+            @for (column of displayColumns(); track column.id) {
               <td class="table__cell" [class]="column.columnCellClass">
-                @if (column.key === 'checkbox') {
-                  <mat-checkbox
-                    [checked]="isItemSelected(item)"
-                    (change)="onCheckboxChange(item, $event.checked)"
-                    [disabled]="!selectionModel()"
-                    [attr.aria-label]="'Select item'"
-                  />
-                } @else {
-                  {{ getDisplayValue(item, column.key) }}
+                @switch (column.columnType.type) {
+                  @case ('checkbox') {
+                    <mat-checkbox
+                      [checked]="isItemSelected(item, column)"
+                      (change)="onCheckboxChange(item, $event.checked, column)"
+                      [disabled]="!selectionModel()"
+                      [attr.aria-label]="'Select item'"
+                    />
+                  }
+                  @case ('rowNumbers') {
+                    {{ i + 1 }}
+                  }
+                  @case ('custom') {
+                    <ng-container
+                      [ngTemplateOutlet]="getTemplate(column.columnType.templateName)"
+                      [ngTemplateOutletContext]="{ $implicit: item, column: column }"
+                    >
+                    </ng-container>
+                  }
+                  @default {
+                    {{ getDisplayValue(item, column) }}
+                  }
                 }
               </td>
             }

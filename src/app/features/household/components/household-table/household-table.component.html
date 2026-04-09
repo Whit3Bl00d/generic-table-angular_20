@@ -18,4 +18,11 @@
       <p>Start by adding some furniture or general items to your household inventory.</p>
     </div>
   </ng-template>
+
+  <ng-template [tableCell]="customTemplate.columnType.type === ColumnTypes.CUSTOM ? customTemplate.columnType.templateName : ''" let-item let-col="column">
+    <button>
+      Click me {{ item.name }}
+    </button>
+  </ng-template>
+
 </app-generic-table>
